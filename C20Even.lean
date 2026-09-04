@@ -41,6 +41,7 @@ theorem exists_alternating_edges {m : Nat} (hm : 0 < m) (he : m % 2 = 0)
     firstHit_unique c.next selected _ _ _ (spec _) full
   refine ⟨fun v => parityBit (dist v), ?_⟩
   intro v
+  change parityBit (dist (c.next v)) = !(parityBit (dist v))
   by_cases hv : v = root
   · subst v
     simp only [hz, hn, parityBit]
