@@ -22,6 +22,7 @@ jobs:
           lake build
           lake env lean C20.lean | tee lean-axioms.log
           lake env lean C20Gaps.lean | tee -a lean-axioms.log
+          lake env lean C20Boundary.lean | tee -a lean-axioms.log
           if grep -E 'sorryAx|ofReduceBool|native_decide' lean-axioms.log; then exit 1; fi
   certificate:
     runs-on: ubuntu-24.04
