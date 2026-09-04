@@ -41,15 +41,28 @@ assumed. This component passed remote Lean checking in run 33915901637.
 completeness of the permutation generator. `BoundarySearch.lean` proves
 that a successful finite Boolean check implies the boundary dichotomy
 for every enumerated permutation and odd flag pair. Pure Lean runtime
-checks through k=8 passed. These runtime checks alone are not closed
-Lean proofs of the finite constants; the size-10 run and formal finite
-constant proofs are separate obligations.
+checks through k=10 passed. Run 33916749650 checked the size-10 Boolean
+in 22:05.02 on a remote runner. These runtime checks alone are not closed
+Lean proofs of the finite constants. `C20Finite.lean` closes k=4 by
+kernel reduction. A k=6 kernel-reduction probe exceeded 15 minutes.
 
 `C20Expansion.lean` proves local matching incidence is preserved by
 expanding boundary edges into paths of arbitrary lengths, given the
 stated first-hit compression equations. It passed Lean checking in
 run 33917042568; that run failed later at the separate finite-constant
 proof, not at the expansion lemma.
+
+`C20Cycles.lean` and `C20Kernel.lean` establish exact cycle periods and
+extract the actual circuit vertex set and cyclic lists. `C20Even.lean`
+proves the full graph conclusion for every even m. `C20Compression.lean`
+derives the connected boundary cycle and expansion interface from any
+nontrivial selected set. These components passed run 33919711175.
+
+The separate `C20NativeFinite.lean` experiment attempts all remaining
+finite constants using Lean's native evaluator. Its trust boundary
+includes `Lean.ofReduceBool`, the compiler, and native implementations
+of core operations. This is not kernel-only evaluation. The experiment
+is excluded from the default build and does not open the publication gate.
 
 The complete C20 theorem is still unformalized and the publication gate
 remains closed.
@@ -84,19 +97,21 @@ every count to be two. Adding M then covers every spoke twice too.
 ## Formal trust boundary
 
 Run `lake build` with the pinned Lean 4.28.0 toolchain, then
-`lake env lean C20.lean` to print the axiom dependencies. The only import
-is `Std`. Arithmetic automation produces kernel-checked terms.
-There is no external C++ result imported into Lean, and no added axiom,
-admitted proof, or `native_decide` proof. The basic Lean principles
+`lake env lean C20.lean` to print the axiom dependencies. That core file
+imports `Std`; the structural modules also import pinned Mathlib.
+Arithmetic automation in the default build produces kernel-checked terms.
+No external C++ result is imported into Lean. The default build has no
+added axiom, admitted proof, or `native_decide` proof. The separate native
+experiment and its additional trust are described above. The basic Lean principles
 `propext` and `Quot.sound` are reported by the axiom audit; the constructive
 gap proof also uses `Classical.choice` through standard proof automation.
 
 The following steps are **not** yet Lean formalized:
 
-1. Extracting and normalizing the boundary type from Q.
+1. Completing the domino normalization and boundary-flag dictionary from Q. Vertex-set extraction and first-return compression are checked.
 2. Identifying complement cycle parity with the auxiliary weighted graph.
 3. Closing the full finite boundary theorem in Lean. Permutation-enumeration completeness and witness-checker soundness are proved, but the successful runtime calculations are not themselves proof terms for the finite constants.
-5. Extracting the two alternating perfect matchings from an even complement.
+4. Transferring both finite conclusions back to the actual graph, including extracting alternating matchings from an even switched complement.
 
 Those steps are proved in the written argument and checked computationally
 where applicable. The complete C20 result is therefore computer-assisted;

@@ -37,11 +37,11 @@ Berge–Fulkerson conjecture.
 | Actual graph implementation | 2,000 deterministic physical graph checks; supplementary tests, not the source of unbounded scope |
 
 **This is a complete computer-assisted proof with a partial Lean
-formalization, not an end-to-end Lean proof of C20.** The strongest Lean
-theorem takes five spoke classes with odd-gap distance witnesses and
-constructs all six perfect matchings. The boundary reduction and finite
-C++ computation remain outside Lean. See [FORMALIZATION.md](FORMALIZATION.md)
-for the exact interface and unformalized steps.
+formalization, not an end-to-end Lean proof of C20.** Checked components
+now include the complete even-order branch, first-return compression,
+and construction of the cover from common-good classes. The odd-order
+reduction and full finite proof still need to be connected. See
+[FORMALIZATION.md](FORMALIZATION.md) for the exact remaining obligations.
 
 ## Reproduce
 
@@ -78,10 +78,13 @@ lake build
 lake env lean C20.lean
 ```
 
-Lean **4.28.0** is pinned in `lean-toolchain`; only its bundled `Std`
-library is imported. The file also works by itself with that toolchain.
-There are no added axioms, admitted obligations, or `native_decide` calls.
-The file prints the axioms used by its principal theorems.
+Lean **4.28.0** is pinned in `lean-toolchain`. The core `C20.lean` uses
+only bundled `Std`; the graph-reduction modules also use pinned Mathlib
+4.28.0. The default build audits theorem dependencies and rejects
+`sorryAx` and native-evaluation axioms. The separate experimental
+`C20NativeFinite.lean` uses `native_decide`, which also trusts Lean's
+compiler through `Lean.ofReduceBool`. It is excluded from the default
+build and does not establish the full C20 theorem.
 
 The [GitHub Actions workflow](https://github.com/fcescob/c20-cover/actions)
 runs the proof and all finite checks on a remote runner.

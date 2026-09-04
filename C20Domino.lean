@@ -176,7 +176,8 @@ theorem circuit_switch_matching {m : Nat} (hm : 3 ≤ m) (c d : Cycle (Fin m))
     (outerDomino q) (innerDomino q) with ⟨p, hp, hs⟩
   refine ⟨p, hp, ?_⟩
   intro v
-  simpa only [mem_circuitKernel] using hs v
+  rw [hs v]
+  exact decide_eq_decide.mpr (not_congr (mem_circuitKernel q v).symm)
 
 end C20
 
