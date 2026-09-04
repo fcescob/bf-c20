@@ -1,0 +1,33 @@
+name: Verify
+on:
+  push:
+  workflow_dispatch:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install elan
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/leanprover/elan/v4.2.4/elan-init.sh -o /tmp/elan-init.sh
+          bash /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Check Lean proof and audit axioms
+        run: |
+          set -o pipefail
+          lake build
+          lake env lean C20.lean | tee lean-axioms.log
+          if grep -E 'sorryAx|ofReduceBool|native_decide' lean-axioms.log; then exit 1; fi
+  certificate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Check package hashes
+        run: sha256sum -c SHA256SUMS
+      - name: Reproduce every finite case and physical checks
+        run: ./verify.sh

@@ -1,0 +1,5 @@
+PASS k=4 orders=4 total=8 even=7 partitioned=1 reps=1,
+PASS k=6 orders=64 total=512 even=392 partitioned=120 reps=1,7,
+PASS k=8 orders=2304 total=36864 even=25896 partitioned=10968 reps=1,7,
+PASS k=10 orders=147456 total=9437184 even=6234704 partitioned=3202480 reps=1,7,11,31,
+COMPLETE: all normalized boundary states checked

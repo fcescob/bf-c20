@@ -1,0 +1,22 @@
+{
+  "physical_lifts": {
+    "4": {
+      "even": 444,
+      "partition": 56
+    },
+    "6": {
+      "even": 392,
+      "partition": 108
+    },
+    "8": {
+      "even": 350,
+      "partition": 150
+    },
+    "10": {
+      "even": 327,
+      "partition": 173
+    }
+  },
+  "maximum_vertices": 70
+}
+ALL ASSERTIONS PASSED: 2000 physical graphs, six explicit perfect matchings each

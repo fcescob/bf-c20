@@ -1,0 +1,6 @@
+name = "c20-cover"
+version = "1.0.0"
+defaultTargets = ["C20"]
+
+[[lean_lib]]
+name = "C20"
