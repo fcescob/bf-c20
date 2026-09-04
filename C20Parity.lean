@@ -17,6 +17,7 @@ theorem exists_gapFlags {k : Nat} (gap : Fin k → Bool)
       dsimp only [f]
       congr 1
       apply Fin.ext
+      change i.val = 2 * (i.val / 2) + 1
       omega
     rw [he, ← encodeBits_testBit f ⟨i.val / 2, hj⟩]
     simp [Boundary.gapBit, hi]
