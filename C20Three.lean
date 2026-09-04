@@ -7,9 +7,11 @@ theorem odd_recurrence_two {V : Type} (f : V → V) (a : V → Nat)
     (adjacent : ∀ v, a v + a (f v) = 2) : ∀ v, a v = 1 := by
   have h := odd_recurrence f (fun v => 2 * a v) r closed (fun v => by
     have h := adjacent v
+    change 2 * a v + 2 * a (f v) = 4
     omega)
   intro v
   have hv := h v
+  change 2 * a v = 2 at hv
   omega
 
 /-- On two odd cycles, three perfect matchings with partitioned spokes

@@ -1,0 +1,63 @@
+name: Native direct matching certificates
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        head: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install elan and prepare finite-only workspace
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/leanprover/elan/v4.2.4/elan-init.sh -o /tmp/elan-init.sh
+          bash /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          bash prepare-finite-workspace.sh
+      - name: Compile checker and prove this shard
+        working-directory: out/finite
+        env:
+          C20_HEAD: ${{ matrix.head }}
+        run: |
+          set -o pipefail
+          lake build C20BoundaryMatching
+          mkdir -p .lake/build/lib/lean/C20MatchingFinite
+          /usr/bin/time -v lake env lean -o ".lake/build/lib/lean/C20MatchingFinite/Head${C20_HEAD}.olean" \
+            "C20MatchingFinite/Head${C20_HEAD}.lean" | tee shard-axioms.log
+          if grep 'sorryAx' shard-axioms.log; then exit 1; fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: matching-head-${{ matrix.head }}
+          path: out/finite/.lake/build/lib/lean/C20MatchingFinite/Head${{ matrix.head }}.olean
+          if-no-files-found: error
+  combine:
+    needs: shard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install elan and prepare finite-only workspace
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/leanprover/elan/v4.2.4/elan-init.sh -o /tmp/elan-init.sh
+          bash /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          bash prepare-finite-workspace.sh
+      - name: Build the same checker from this commit
+        working-directory: out/finite
+        run: lake build C20BoundaryMatching
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: matching-head-*
+          path: out/finite/.lake/build/lib/lean/C20MatchingFinite
+          merge-multiple: true
+      - name: Combine every shard and prove all remaining sizes
+        working-directory: out/finite
+        run: |
+          set -o pipefail
+          /usr/bin/time -v lake env lean C20MatchingFinite.lean | tee combined-axioms.log
+          if grep 'sorryAx' combined-axioms.log; then exit 1; fi

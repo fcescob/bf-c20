@@ -152,7 +152,7 @@ theorem boundary_head_lt (k : Nat) (hk : 0 < k) (tail : List Nat)
   cases tail with
   | nil => exact hk
   | cons a rest =>
-    have hm := hperm.mem_iff.mp (List.mem_cons_self a rest)
+    have hm := hperm.mem_iff.mp (show a ∈ a :: rest from List.mem_cons_self)
     rcases List.mem_map.mp hm with ⟨i, hi, he⟩
     have hil : i < k - 1 := List.mem_range.mp hi
     simpa only [List.headD_cons] using (show a < k by omega)
