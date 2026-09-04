@@ -133,30 +133,52 @@ theorem checkState_sound (s : State) (cg : List Nat) (dg : Nat)
     next he => contradiction
     next parts he => exact verify_sound s (.partition parts) h
 
-def checkOrder (k : Nat) (goods : Array (List Nat)) (tail : List Nat) : Bool := Id.run do
-  let order := 0 :: tail
-  if !(connectedDominoes k order) then return true
-  let flags := oddFlags k
+def permutedGoods (k : Nat) (goods : Array (List Nat)) (order : List Nat) : Array Nat := Id.run do
   let mut dgoods := Array.replicate (2 ^ (k / 2)) 0
-  for df in flags do
+  for df in oddFlags k do
     let mut bits := 0
     for mask in goods[df]! do
       bits := bits ||| (1 <<< permuteMask order mask)
     dgoods := dgoods.set! df bits
-  for cf in flags do
-    for df in flags do
-      if !(checkState ⟨k, order, cf, df⟩ goods[cf]! dgoods[df]!) then return false
-  return true
+  return dgoods
+
+def checkOrder (k : Nat) (goods : Array (List Nat)) (tail : List Nat) : Bool :=
+  let order := 0 :: tail
+  if connectedDominoes k order then
+    let dgoods := permutedGoods k goods order
+    (oddFlags k).all fun cf => (oddFlags k).all fun df =>
+      checkState ⟨k, order, cf, df⟩ goods[cf]! dgoods[df]!
+  else true
+
+theorem checkOrder_sound (k : Nat) (goods : Array (List Nat)) (tail : List Nat)
+    (cf df : Nat) (hc : cf ∈ oddFlags k) (hd : df ∈ oddFlags k)
+    (connected : connectedDominoes k (0 :: tail) = true)
+    (h : checkOrder k goods tail = true) : Conclusion ⟨k, 0 :: tail, cf, df⟩ := by
+  simp only [checkOrder, connected, ↓reduceIte] at h
+  have hcf := List.all_eq_true.mp h cf hc
+  have hdf := List.all_eq_true.mp hcf df hd
+  exact checkState_sound _ _ _ hdf
 
 /-- Every odd C flag is included: no rotational symmetry reduction. -/
-def allBoundaryStates (k : Nat) : Bool := Id.run do
+def allBoundaryStates (k : Nat) : Bool :=
   let goods := ((List.range (2 ^ (k / 2))).map (localGood k)).toArray
   let tails := permutations ((List.range (k - 1)).map (· + 1))
-  return tails.all (checkOrder k goods)
+  tails.all (checkOrder k goods)
+
+/-- A positive finite computation entails the literal boundary dichotomy
+for every admissible permutation and every odd pair of flags. -/
+theorem allBoundaryStates_sound (k : Nat) (tail : List Nat) (cf df : Nat)
+    (hperm : tail.Perm ((List.range (k - 1)).map (· + 1)))
+    (hc : cf ∈ oddFlags k) (hd : df ∈ oddFlags k)
+    (connected : connectedDominoes k (0 :: tail) = true)
+    (h : allBoundaryStates k = true) : Conclusion ⟨k, 0 :: tail, cf, df⟩ := by
+  have ht := all_permutations_sound _ _ h tail hperm
+  exact checkOrder_sound k _ tail cf df hc hd connected ht
 
 end C20.Boundary
 
 #print axioms C20.Boundary.checkState_sound
+#print axioms C20.Boundary.allBoundaryStates_sound
 
 def main (args : List String) : IO UInt32 := do
   let sizes := if args.isEmpty then [4, 6, 8] else args.filterMap String.toNat?
