@@ -1,9 +1,14 @@
 # C20: six perfect matchings from a short alternating circuit
 
-**Computer-assisted theorem · 4 September 2026**
+**UNPUBLISHED DRAFT — keep private.**
 
-Share this repository or the [standalone gist](https://gist.github.com/fcescob/59ce2639b82277aad07b7f337403f628).
-Both contain everything needed to read and reproduce the result.
+The user requires a complete, correct, checked Lean proof of C20 before
+publication. The current Lean component is partial and does not meet that
+condition. The repository was made private and the public gist deleted
+on 4 September 2026. Do not republish either package until the full
+formalization is complete.
+
+**Computer-assisted theorem · 4 September 2026**
 
 Let a graph consist of two disjoint cycles of the same length, together
 with a perfect matching **M** between them. If it has an **M-alternating

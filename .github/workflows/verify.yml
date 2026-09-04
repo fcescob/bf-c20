@@ -35,16 +35,3 @@ jobs:
         run: |
           mv partitions.bin.gz out/banked.bin.gz
           ./verify.sh
-  published-gist:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - name: Retrieve the published standalone gist
-        run: |
-          git clone https://gist.github.com/59ce2639b82277aad07b7f337403f628.git gist
-          git -C gist checkout 33973d2f27611db9c320ac81edf38a61a8d84cec
-      - name: Verify published files and regenerate the proof certificate
-        working-directory: gist
-        run: |
-          sha256sum -c SHA256SUMS
-          bash verify.sh
