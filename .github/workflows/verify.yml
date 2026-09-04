@@ -11,6 +11,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: .lake/packages
+          key: lean428-mathlib-8f9d9cff-linux-cycle
       - name: Install elan
         run: |
           curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/leanprover/elan/v4.2.4/elan-init.sh -o /tmp/elan-init.sh
@@ -19,7 +23,7 @@ jobs:
       - name: Check Lean proof and audit axioms
         run: |
           set -o pipefail
-          lake exe cache get Mathlib/GroupTheory/Perm/Cycle/Concrete.lean
+          lake exe cache get Mathlib.GroupTheory.Perm.Cycle.Concrete
           lake build
           lake env lean C20.lean | tee lean-axioms.log
           lake env lean C20Gaps.lean | tee -a lean-axioms.log

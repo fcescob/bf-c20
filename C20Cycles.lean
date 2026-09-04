@@ -58,6 +58,23 @@ theorem oddCycle_of_odd_card {m : Nat} (hm : m % 2 = 1) (c : Cycle (Fin m))
   rw [he]
   exact walk_full_cycle hp c connected
 
+theorem walk_return_iff {m : Nat} (hm : 0 < m) (c : Cycle (Fin m))
+    (connected : ConnectedCycle c) (v : Fin m) (n : Nat) :
+    walk c.next n v = v ↔ m ∣ n := by
+  rw [← toPerm_pow_apply c n v,
+    ← (toPerm_isCycle hm c connected).pow_eq_one_iff' (c.next_ne v),
+    ← orderOf_dvd_iff_pow_eq_one, toPerm_order hm c connected]
+
+theorem cycle_neighbors_distinct {m : Nat} (hm : 3 ≤ m) (c : Cycle (Fin m))
+    (connected : ConnectedCycle c) (v : Fin m) : c.next v ≠ c.prev v := by
+  intro h
+  have hw : walk c.next 2 v = v := by
+    change c.next (c.next v) = v
+    rw [h, c.next_prev]
+  have hd := (walk_return_iff (by omega) c connected v 2).mp hw
+  have hsmall : m ≤ 2 := Nat.le_of_dvd (by decide) hd
+  omega
+
 /-- Every vertex occurs exactly once in a cyclic list representing c. -/
 theorem exists_cycle_list {m : Nat} (hm : 0 < m) (c : Cycle (Fin m))
     (connected : ConnectedCycle c) :
