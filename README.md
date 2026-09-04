@@ -33,7 +33,7 @@ Berge–Fulkerson conjecture.
 |---|---|
 | Actual graph → finite matching boundary theorem → six-matching cover | Lean theorem `C20.c20_from_finite`, including normalization, parity, indexing, and arbitrary path lengths |
 | Finite dichotomy for k = 4, 6, 8, 10 | All 9,474,568 normalized states checked; 3,213,569 partition certificates replayed by the original C++ package |
-| Direct finite matching certificates for the Lean graph reduction | Checker soundness proved in Lean; large finite constants still being checked |
+| Direct finite matching certificates for the Lean graph reduction | Checker soundness and all constants through k=8 proved in Lean; k=10 still being checked |
 | Even cycle lengths | Complete Lean proof `C20.even_order_cover` |
 | Actual graph implementation | 2,000 deterministic physical graph checks; supplementary tests |
 

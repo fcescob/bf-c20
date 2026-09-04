@@ -1,7 +1,7 @@
 # Lean verification status
 
 The complete unbounded graph reduction has passed Lean. The remaining
-work is to close the large finite constants and check the final theorem
+work is to close the size-10 finite constants and check the final theorem
 with those dependencies. The public research release is authorized while
 that computation continues; it does not claim completed end-to-end Lean
 verification.
@@ -54,8 +54,12 @@ masks; the proof does not assume that its search heuristic is correct.
 
 `C20MatchingFinite/Head0.lean` through `Head9.lean` divide the k=10
 computation by the second vertex of the order. These use `native_decide`.
-`C20MatchingFinite.lean` combines every shard and the smaller sizes into
-`matching_up_to_ten_native`. The expensive proof jobs are still running.
+`C20MatchingSmall.lean` proves the constants for k = 2, 4, 6, and 8.
+[Run 33924041597](https://github.com/fcescob/bf-c20/actions/runs/33924041597)
+checked them in 7.7 seconds after compiling the evaluator. The size-2 and
+size-4 proofs use kernel reduction; sizes 6 and 8 use native evaluation.
+`C20MatchingFinite.lean` combines these smaller cases and every size-10
+shard into `matching_up_to_ten_native`. The size-10 jobs are still running.
 A completed runtime calculation alone is not a closed Lean theorem.
 
 `C20Theorem.lean` applies the finite theorem to `c20_from_finite` to produce
