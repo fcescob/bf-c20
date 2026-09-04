@@ -1,14 +1,17 @@
 import C20Parity
 import C20Reversal
+import C20Even
 
 namespace C20
 
 theorem filter_length_two {A : Type} (f : A → Bool) (a b : A) :
     ([a, b].filter f).length = bit (f a) + bit (f b) := by
+  simp only [List.filter_cons, List.filter_nil]
   cases f a <;> cases f b <;> rfl
 
 theorem filter_length_four {A : Type} (f : A → Bool) (a b c d : A) :
     ([a, b, c, d].filter f).length = bit (f a) + bit (f b) + bit (f c) + bit (f d) := by
+  simp only [List.filter_cons, List.filter_nil]
   cases f a <;> cases f b <;> cases f c <;> cases f d <;> rfl
 
 /-- Two or four lifted kernel matchings, together with the switched
@@ -106,7 +109,6 @@ theorem odd_root_cover (finite : MatchingBoundaryTheorem) {m : Nat} (hm : 3 ≤ 
   have hzero : order.getD 0 0 = 0 := by
     change (List.ofFn (fun i => (cs.symm (ds i)).val)).getD z.val 0 = 0
     rw [getD_ofFn, ds0, ← cs0, cs.symm_apply_apply]
-    rfl
   rcases order_tail positive order (orderLabels_perm ds cs.symm) hzero with ⟨tail, ht, hperm⟩
   rcases finite q.size hsize tail cf df hperm hcf hdf with ⟨patterns, hlen, hrows, hpartition⟩
   let mask := fun p : Boundary.Pattern => fun w : {v // s v = true} =>
