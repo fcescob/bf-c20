@@ -8,7 +8,7 @@ namespace C20
 theorem walk_add {V : Type} (f : V → V) (a b : Nat) (v : V) :
     walk f (a + b) v = walk f a (walk f b v) := by
   induction a with
-  | zero => rfl
+  | zero => simp only [Nat.zero_add, walk]
   | succ a ih => simpa only [Nat.succ_add, walk] using congrArg f ih
 
 theorem walk_injective {V : Type} (c : Cycle V) (n : Nat) :
@@ -143,8 +143,7 @@ theorem nextSelected_connected {V : Type} (c : Cycle V) (s : V → Bool)
       cases hs : s (walk c.next n u) with
       | false =>
         refine ⟨t, ?_⟩
-        rw [walk, ← firstIndex_step c s connected nonempty _ hs]
-        exact ht
+        exact ht.trans (firstIndex_step c s connected nonempty _ hs)
       | true =>
         have hid : idx (walk c.next n u) = ⟨walk c.next n u, hs⟩ :=
           firstIndex_selected c s connected nonempty ⟨_, hs⟩
@@ -163,7 +162,8 @@ noncomputable def compressedCycle {V : Type} [Finite V] (c : Cycle V) (s : V →
   classical
   let step := nextSelected c s connected nonempty
   let p := Equiv.ofBijective step
-    (Finite.bijective_iff_injective.mpr (nextSelected_injective c s connected nonempty))
+    ⟨nextSelected_injective c s connected nonempty,
+      Finite.surjective_of_injective (nextSelected_injective c s connected nonempty)⟩
   refine ⟨step, p.symm, p.symm_apply_apply, p.apply_symm_apply, ?_⟩
   intro v hv
   rcases exists_ne v with ⟨w, hw⟩
