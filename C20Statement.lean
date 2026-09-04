@@ -14,7 +14,7 @@ cycles on Fin m, with m >= 3, are precisely two simple m-cycles.
 namespace C20
 
 def cyclicNext {n : Nat} (i : Fin n) : Fin n :=
-  ⟨(i.val + 1) % n, Nat.mod_lt _ (by omega)⟩
+  ⟨(i.val + 1) % n, Nat.mod_lt _ (by have h := i.isLt; omega)⟩
 
 def Adjacent {V : Type} (c : Cycle V) (u v : V) : Prop :=
   c.next u = v ∨ c.next v = u
