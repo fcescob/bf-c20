@@ -2,6 +2,9 @@
 
 **Computer-assisted theorem · 4 September 2026**
 
+Share this repository or the [standalone gist](https://gist.github.com/fcescob/59ce2639b82277aad07b7f337403f628).
+Both contain everything needed to read and reproduce the result.
+
 Let a graph consist of two disjoint cycles of the same length, together
 with a perfect matching **M** between them. If it has an **M-alternating
 circuit of length at most 20**, it has six perfect matchings in which
@@ -77,6 +80,9 @@ The file prints the axioms used by its principal theorems.
 
 The [GitHub Actions workflow](https://github.com/fcescob/c20-cover/actions)
 runs the proof and all finite checks on a remote runner.
+The [initial complete verification](https://github.com/fcescob/c20-cover/actions/runs/33914852262)
+passed the constructive Lean proof, exhaustive reproduction, certificate
+replay, and text-only distribution path.
 
 ## Exact finite counts
 

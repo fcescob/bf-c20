@@ -59,7 +59,8 @@ Run `lake build` with the pinned Lean 4.28.0 toolchain, then
 is `Std`. Arithmetic automation produces kernel-checked terms.
 There is no external C++ result imported into Lean, and no added axiom,
 admitted proof, or `native_decide` proof. The basic Lean principles
-`propext` and `Quot.sound` are reported by the axiom audit.
+`propext` and `Quot.sound` are reported by the axiom audit; the constructive
+gap proof also uses `Classical.choice` through standard proof automation.
 
 The following steps are **not** yet Lean formalized:
 
