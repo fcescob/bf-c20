@@ -10,3 +10,7 @@ name = "C20Gaps"
 
 [[lean_lib]]
 name = "C20Boundary"
+
+[[lean_exe]]
+name = "boundary-search"
+root = "BoundarySearch"

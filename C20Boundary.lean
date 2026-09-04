@@ -56,14 +56,14 @@ def arcParity (k flags start length : Nat) : Bool :=
   (List.range length).foldl (fun p j => p.xor (arcOdd flags ((start + j) % k))) false
 
 /-- The t-th following boundary position. -/
-def at (order : List Nat) (start t : Nat) : Nat :=
+def positionAt (order : List Nat) (start t : Nat) : Nat :=
   order.getD ((start + t) % order.length) 0
 
 /-- A selected start and a first later selected position, with no selected
 boundary positions strictly between them. t=k includes singleton arcs. -/
 def consecutive (mask : Nat) (order : List Nat) (start t : Nat) : Bool :=
-  selected mask (at order start 0) && selected mask (at order start t) &&
-    ((List.range (t - 1)).all fun j => !(selected mask (at order start (j + 1))))
+  selected mask (positionAt order start 0) && selected mask (positionAt order start t) &&
+    ((List.range (t - 1)).all fun j => !(selected mask (positionAt order start (j + 1))))
 
 /-- Literal finite version of odd cyclic arcs; no prefix-field shortcut. -/
 def good (mask : Nat) (order : List Nat) (flags : Nat) : Bool :=
