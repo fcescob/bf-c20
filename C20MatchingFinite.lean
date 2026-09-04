@@ -11,7 +11,7 @@ import C20MatchingFinite.Head8
 import C20MatchingFinite.Head9
 
 /-! Direct matching certificates, with explicit native compiler trust.
-This finite theorem is separate from the still-unproved full graph theorem.
+C20Theorem.lean applies this finite theorem to the checked graph deduction.
 -/
 set_option maxRecDepth 100000
 set_option maxHeartbeats 0

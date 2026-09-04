@@ -1,0 +1,3 @@
+theorem C20.c20 : C20.C20Statement :=
+C20.c20_from_finite C20.Boundary.matching_up_to_ten_native
+'C20.c20' depends on axioms: [propext, Classical.choice, Lean.ofReduceBool, Lean.trustCompiler, Quot.sound]

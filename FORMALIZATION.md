@@ -1,10 +1,22 @@
 # Lean verification status
 
-The complete unbounded graph reduction has passed Lean. The remaining
-work is to close the size-10 finite constants and check the final theorem
-with those dependencies. The public research release is authorized while
-that computation continues; it does not claim completed end-to-end Lean
-verification.
+**The complete main C(20) theorem has passed Lean.**
+
+[Run 33924229219](https://github.com/fcescob/bf-c20/actions/runs/33924229219)
+checked `C20.c20 : C20Statement` and all dependencies on 4 September 2026,
+finishing the theorem check at 22:12 UTC. The exact final audit is:
+
+```text
+'C20.c20' depends on axioms:
+[propext, Classical.choice, Lean.ofReduceBool, Lean.trustCompiler, Quot.sound]
+```
+
+There is no `sorryAx` or user-supplied axiom. The graph deduction uses only
+the three ordinary logical axioms; the finite calculation additionally
+trusts Lean's native evaluator and compiler, as detailed below. The
+checked proof-source commit is `1a59d86fbd45a720c6367da3f0cf1ae18b406ea9`;
+the finite shard run used unchanged checker and shard sources from
+`3756bc6`. Publication documentation was updated after these checks.
 
 ## Exact theorem and checked reduction
 
@@ -38,7 +50,7 @@ The principal modules are `C20Cycles`, `C20Kernel`, `C20Even`,
 `C20Expansion`, `C20Three`, and `C20Assemble`. The default `lake build`
 checks this deduction. It has no admitted proof or native-evaluation axiom.
 
-## Remaining finite proof
+## Complete finite proof
 
 `MatchingBoundaryTheorem` quantifies over k ∈ {2,4,6,8,10}, every order
 `0 :: tail` whose tail permutes {1,…,k−1}, and every pair of odd flag
@@ -59,14 +71,17 @@ computation by the second vertex of the order. These use `native_decide`.
 checked them in 7.7 seconds after compiling the evaluator. The size-2 and
 size-4 proofs use kernel reduction; sizes 6 and 8 use native evaluation.
 `C20MatchingFinite.lean` combines these smaller cases and every size-10
-shard into `matching_up_to_ten_native`. The size-10 jobs are still running.
-A completed runtime calculation alone is not a closed Lean theorem.
+shard into `matching_up_to_ten_native`.
+[Run 33924043380](https://github.com/fcescob/bf-c20/actions/runs/33924043380)
+proved every size-10 shard and successfully combined the finite theorem.
+These are closed Lean theorems using native evaluation, not only runtime
+outputs. The size-10 enumeration covers 92,897,280 states.
 
 `C20Theorem.lean` applies the finite theorem to `c20_from_finite` to produce
-`C20.c20 : C20Statement`. This file and all finite dependencies must pass
-together before the result is described as fully Lean verified. The
-complete theorem workflow checks source identity when it reuses shard
-artifacts from a previous run.
+`C20.c20 : C20Statement`. The complete theorem and all dependencies passed
+together. The workflow checked exact source identity before reusing the
+shard artifacts, rechecked the entire graph deduction, combined all
+finite cases, and enforced the exact final axiom whitelist.
 
 ## Reproduction and trust
 
@@ -94,7 +109,7 @@ The finite proof deliberately uses native evaluation. In addition to the
 usual logical axioms, `native_decide` trusts `Lean.ofReduceBool`,
 `Lean.trustCompiler`, Lean's compiler, and the native implementations of
 core operations. This is a larger trusted base than kernel-only
-reduction. The final axiom audit must contain no `sorryAx` or user-supplied
+reduction. The final axiom audit contains no `sorryAx` or user-supplied
 axiom. The repository retains earlier finite-check experiments, but the
 final target uses the direct matching checker described above.
 

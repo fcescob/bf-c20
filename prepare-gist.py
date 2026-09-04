@@ -38,9 +38,9 @@ This gist contains the written proof, Lean sources, pinned dependency
 manifest, finite enumerator and independent certificate replayer. It
 requires no private repository or original research workspace.
 
-**Read FORMALIZATION.md for the exact verification status and trust
-boundary.** Publication alone is not a claim that every Lean target has
-passed.
+**The complete main theorem `C20.c20` has passed Lean.** See
+FORMALIZATION.md for the verified source commit, remote verification
+links, exact axiom audit, and native-evaluation trust boundary.
 
 Download or clone the entire gist, then restore the Lean module directory:
 

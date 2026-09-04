@@ -2,9 +2,9 @@ import C20Gaps
 
 /-!+# The exact publication target
 
-This file defines the full graph theorem, rather than a conditional
-lifting theorem. There is intentionally no claim that it is proved yet.
-The public research release does not claim its end-to-end verification is complete.
+This file defines the full graph theorem. C20Theorem.lean proves this
+statement; FORMALIZATION.md records the complete verification and its
+explicit native-evaluation trust boundary.
 
 The graph has vertices (outer,v) and (inner,v), with a spoke between the
 two copies of v and the cycle edges given by c and d. Connected successor

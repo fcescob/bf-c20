@@ -1,14 +1,13 @@
 # Berge–Fulkerson C(20): six perfect matchings from a short alternating circuit
 
-**Public research release — full Lean verification is in progress.**
+**Complete Lean proof of the C(20) double-cover theorem.**
 
-This release contains the computer-assisted proof, exhaustive verifier,
-and certificates, together with the ongoing Lean formalization.
-**The complete theorem has not yet passed end-to-end Lean verification.**
-The complete unbounded graph reduction has passed Lean; the remaining
-finite proof constants are being checked. See
-[FORMALIZATION.md](FORMALIZATION.md) and the verification workflows for
-the formalization status.
+[`C20.c20`](C20Theorem.lean) passed
+[end-to-end verification](https://github.com/fcescob/bf-c20/actions/runs/33924229219)
+on 4 September 2026 at 22:12 UTC. The proof has no `sorry` or
+user-supplied axiom. The finite computation uses Lean's native evaluator;
+its additional compiler trust is explicit below and in
+[FORMALIZATION.md](FORMALIZATION.md).
 
 **Computer-assisted theorem · 4 September 2026**
 
@@ -17,8 +16,10 @@ with a perfect matching **M** between them. If it has an **M-alternating
 circuit of length at most 20**, it has six perfect matchings in which
 **every edge occurs exactly twice**. The two cycles can be arbitrarily long.
 
-For a class-2 graph (one with no proper three-edge-colouring), the
-construction includes both M and M △ E(Q), where Q is the given circuit.
+The written proof also shows that for a class-2 graph (one with no proper
+three-edge-colouring), the construction includes both M and M △ E(Q),
+where Q is the given circuit. This additional specification of two
+distinguished members is not a separate target of the current Lean proof.
 Repeated perfect matchings are allowed in a cover.
 
 This repository is a self-contained proof package. Read [PROOF.md](PROOF.md)
@@ -33,16 +34,18 @@ Berge–Fulkerson conjecture.
 |---|---|
 | Actual graph → finite matching boundary theorem → six-matching cover | Lean theorem `C20.c20_from_finite`, including normalization, parity, indexing, and arbitrary path lengths |
 | Finite dichotomy for k = 4, 6, 8, 10 | All 9,474,568 normalized states checked; 3,213,569 partition certificates replayed by the original C++ package |
-| Direct finite matching certificates for the Lean graph reduction | Checker soundness and all constants through k=8 proved in Lean; k=10 still being checked |
+| Direct finite matching certificates for the Lean graph reduction | Checker soundness and all constants k=2,4,6,8,10 proved in Lean |
 | Even cycle lengths | Complete Lean proof `C20.even_order_cover` |
 | Actual graph implementation | 2,000 deterministic physical graph checks; supplementary tests |
 
-**The full graph reduction is Lean checked.** The latest
-[successful verification](https://github.com/fcescob/bf-c20/actions/runs/33923291931)
-checks `C20.c20_from_finite` with only `propext`, `Classical.choice`, and
-`Quot.sound`. Its sole remaining premise is the precisely stated finite
-matching theorem. The finite proof jobs and the final `C20.c20` check
-remain pending. See [FORMALIZATION.md](FORMALIZATION.md).
+The complete theorem has the original graph hypotheses only: two connected
+simple cycles and a short alternating circuit. All compression,
+normalization, finite enumeration, and lifting obligations are discharged.
+The [finite proof run](https://github.com/fcescob/bf-c20/actions/runs/33924043380)
+proved every size-10 shard, and the
+[combined check](https://github.com/fcescob/bf-c20/actions/runs/33924229219)
+proved `C20.c20`. Its exact axiom audit is retained in
+[lean-full-axioms.log](lean-full-axioms.log).
 
 ## Reproduce
 
@@ -80,7 +83,7 @@ lake build
 lake env lean C20Assemble.lean
 ```
 
-The full target, once the finite proof computation completes, is:
+To reproduce the complete Lean proof, including the finite computation:
 
 ```sh
 lake build C20Theorem
@@ -96,10 +99,13 @@ core implementations. No C++ result is imported into Lean.
 The [GitHub Actions workflows](https://github.com/fcescob/bf-c20/actions)
 run the checks remotely. The complete theorem workflow also checks that
 reused finite proof artifacts come from exactly the same checker sources.
-A successful default build proves the graph reduction; completion of the
-separate `C20Theorem` build is required for the full Lean claim.
+The default build checks the graph reduction quickly. `lake build
+C20Theorem` also recomputes all finite proofs and can take substantially
+longer. The remote finite workflow splits size 10 into nine nonempty
+batches (plus an empty head-0 case); the measured head-1 proof took
+5 minutes 34 seconds with native libraries loaded.
 
-## Exact finite counts
+## Original certificate census
 
 | Spokes k on Q | Connected D-orders | States | Even complement | Four-class certificate |
 |---|---:|---:|---:|---:|
@@ -109,13 +115,17 @@ separate `C20Theorem` build is required for the full Lean claim.
 | 10 | 147,456 | 9,437,184 | 6,234,704 | 3,202,480 |
 | **Total** | | **9,474,568** | **6,260,999** | **3,213,569** |
 
-The k = 2 case is proved directly in the note. Even cycle lengths are
-handled by an explicit three-edge-colouring.
+The k = 2 case is proved directly in the note and by kernel reduction in
+Lean. Even cycle lengths are handled by an explicit three-edge-colouring.
+The Lean finite theorem proves a stronger enumeration without the C-flag
+rotation reduction or the domino-connectivity filter: its size-10 case
+covers 9! × 16 × 16 = 92,897,280 states.
 
 ## Files and provenance
 
 - [PROOF.md](PROOF.md): complete written proof and certificate format.
-- [C20.lean](C20.lean), [FORMALIZATION.md](FORMALIZATION.md): Lean sources and their precise scope.
+- [C20Theorem.lean](C20Theorem.lean): the complete formal theorem.
+- [FORMALIZATION.md](FORMALIZATION.md): definitions, proof structure, reproduction, and trust boundary.
 - [exhaustive_local.cpp](exhaustive_local.cpp): enumeration and certificate generation.
 - [replay_certificate.cpp](replay_certificate.cpp): independent checking algorithm with no partition search.
 - `partitions.bin.gz`: every non-even state's four classes, in the specified order.

@@ -1,0 +1,2 @@
+'C20.cover_of_patterns' depends on axioms: [propext, Quot.sound]
+'C20.c20_from_finite' depends on axioms: [propext, Classical.choice, Quot.sound]
