@@ -1,5 +1,10 @@
 # What Lean proves
 
+**Publication target:** `C20.C20Statement` in `C20Statement.lean` states
+the whole theorem from two connected cycles and a short alternating
+circuit, with no boundary or matching witnesses assumed. A checked proof
+of that statement is still required. Defining it is not proving it.
+
 The core statement is `C20.five_matchings_cover` in `C20.lean`:
 for **any vertex-position type V**, any two cycles with odd closed orbits,
 and any five perfect matchings whose spoke sets partition V, adjoining
