@@ -19,11 +19,13 @@ jobs:
       - name: Check Lean proof and audit axioms
         run: |
           set -o pipefail
+          lake exe cache get Mathlib/GroupTheory/Perm/Cycle/Concrete.lean
           lake build
           lake env lean C20.lean | tee lean-axioms.log
           lake env lean C20Gaps.lean | tee -a lean-axioms.log
           lake env lean C20Boundary.lean | tee -a lean-axioms.log
           lake env lean C20Expansion.lean | tee -a lean-axioms.log
+          lake env lean C20Cycles.lean | tee -a lean-axioms.log
           if grep -E 'sorryAx|ofReduceBool|native_decide' lean-axioms.log; then exit 1; fi
       - name: Build and probe the Lean boundary computation
         run: |

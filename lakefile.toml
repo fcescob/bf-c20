@@ -1,6 +1,6 @@
 name = "c20-cover"
 version = "1.0.0"
-defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion", "C20Statement"]
+defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion", "C20Statement", "C20Cycles"]
 
 [[lean_lib]]
 name = "C20"
@@ -17,6 +17,14 @@ name = "C20Expansion"
 [[lean_lib]]
 name = "C20Statement"
 
+[[lean_lib]]
+name = "C20Cycles"
+
 [[lean_exe]]
 name = "boundary-search"
 root = "BoundarySearch"
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.28.0"
