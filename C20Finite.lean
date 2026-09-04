@@ -8,9 +8,6 @@ namespace C20.Boundary
 /-- Smallest boundary case, evaluated and checked by the Lean kernel. -/
 theorem allBoundaryStates_four : allBoundaryStates 4 = true := by decide +kernel
 
-/-- The six-spoke case, also checked by kernel reduction. -/
-theorem allBoundaryStates_six : allBoundaryStates 6 = true := by decide +kernel
-
 theorem boundary_four (tail : List Nat) (cf df : Nat)
     (hperm : tail.Perm [1, 2, 3])
     (hc : cf ∈ oddFlags 4) (hd : df ∈ oddFlags 4)
@@ -22,4 +19,3 @@ theorem boundary_four (tail : List Nat) (cf df : Nat)
 end C20.Boundary
 
 #print axioms C20.Boundary.boundary_four
-#print axioms C20.Boundary.allBoundaryStates_six

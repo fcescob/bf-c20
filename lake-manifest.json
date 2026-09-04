@@ -111,6 +111,6 @@
       "configFile": "lakefile.toml"
     }
   ],
-  "name": "c20-cover",
+  "name": "C20Cover",
   "lakeDir": ".lake"
 }

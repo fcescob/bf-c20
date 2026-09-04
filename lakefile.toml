@@ -1,4 +1,4 @@
-name = "c20-cover"
+name = "C20Cover"
 version = "1.0.0"
 defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion", "C20Statement", "C20Cycles"]
 
