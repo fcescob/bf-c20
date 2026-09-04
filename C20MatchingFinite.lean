@@ -1,3 +1,4 @@
+import C20MatchingSmall
 import C20MatchingFinite.Head0
 import C20MatchingFinite.Head1
 import C20MatchingFinite.Head2
@@ -15,11 +16,6 @@ This finite theorem is separate from the still-unproved full graph theorem.
 set_option maxRecDepth 100000
 set_option maxHeartbeats 0
 namespace C20.Boundary
-
-theorem matching_two : allMatchingStates 2 = true := by decide +kernel
-theorem matching_four : allMatchingStates 4 = true := by decide +kernel
-theorem matching_six_native : allMatchingStates 6 = true := by native_decide
-theorem matching_eight_native : allMatchingStates 8 = true := by native_decide
 
 theorem matching_ten_shards (head : Nat) (hh : head < 10) :
     allMatchingStatesShard 10 head = true := by

@@ -53,6 +53,7 @@ jobs:
       - name: Combine all finite proofs and check C20
         run: |
           set -o pipefail
+          lake build C20MatchingSmall
           lake env lean -o .lake/build/lib/lean/C20MatchingFinite.olean C20MatchingFinite.lean | tee finite-axioms.log
           lake env lean -o .lake/build/lib/lean/C20Theorem.olean C20Theorem.lean | tee full-axioms.log
           if grep 'sorryAx' finite-axioms.log full-axioms.log; then exit 1; fi

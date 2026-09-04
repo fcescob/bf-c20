@@ -1,0 +1,24 @@
+name: Check finite matching sizes two through eight
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  small:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install elan and prepare standalone sources
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/leanprover/elan/v4.2.4/elan-init.sh -o /tmp/elan-init.sh
+          bash /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          bash prepare-finite-workspace.sh
+      - name: Prove all four constants
+        working-directory: out/finite
+        run: |
+          set -o pipefail
+          lake build C20BoundaryMatching:shared
+          /usr/bin/time -v lake env lean C20MatchingSmall.lean | tee small-axioms.log
+          if grep 'sorryAx' small-axioms.log; then exit 1; fi

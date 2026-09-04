@@ -71,6 +71,9 @@ name = "C20Parity"
 name = "C20Assemble"
 
 [[lean_lib]]
+name = "C20MatchingSmall"
+
+[[lean_lib]]
 name = "C20MatchingFinite"
 
 [[lean_lib]]
