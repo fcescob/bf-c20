@@ -115,11 +115,9 @@ theorem checkMatchingState_sound (s : State) (cg : List Nat) (dg : Nat)
 
 def checkMatchingOrder (k : Nat) (goods : Array (List Nat)) (tail : List Nat) : Bool :=
   let order := 0 :: tail
-  if connectedDominoes k order then
-    let dgoods := permutedGoods k goods order
-    (oddFlags k).all fun cf => (oddFlags k).all fun df =>
-      checkMatchingState ⟨k, order, cf, df⟩ goods[cf]! dgoods[df]!
-  else true
+  let dgoods := permutedGoods k goods order
+  (oddFlags k).all fun cf => (oddFlags k).all fun df =>
+    checkMatchingState ⟨k, order, cf, df⟩ goods[cf]! dgoods[df]!
 
 def allMatchingStates (k : Nat) : Bool :=
   let goods := ((List.range (2 ^ (k / 2))).map (localGood k)).toArray
@@ -128,11 +126,36 @@ def allMatchingStates (k : Nat) : Bool :=
 theorem allMatchingStates_sound (k : Nat) (tail : List Nat) (cf df : Nat)
     (hperm : tail.Perm ((List.range (k - 1)).map (· + 1)))
     (hc : cf ∈ oddFlags k) (hd : df ∈ oddFlags k)
-    (connected : connectedDominoes k (0 :: tail) = true)
     (h : allMatchingStates k = true) : MatchingConclusion ⟨k, 0 :: tail, cf, df⟩ := by
   have ht := all_permutations_sound _ _ h tail hperm
-  simp only [checkMatchingOrder, connected, ↓reduceIte] at ht
+  simp only [checkMatchingOrder] at ht
   exact checkMatchingState_sound _ _ _ (List.all_eq_true.mp (List.all_eq_true.mp ht cf hc) df hd)
+
+/-- Independent shards split the second vertex of the D order. The
+enumerator and witness checker are unchanged; each permutation is still
+covered exactly by its own head. No connectivity assumption is used. -/
+def allMatchingStatesShard (k head : Nat) : Bool :=
+  let goods := ((List.range (2 ^ (k / 2))).map (localGood k)).toArray
+  (permutations ((List.range (k - 1)).map (· + 1))).all (fun tail =>
+    if tail.headD 0 == head then checkMatchingOrder k goods tail else true)
+
+theorem matchingShard_sound (k head : Nat) (tail : List Nat) (cf df : Nat)
+    (hperm : tail.Perm ((List.range (k - 1)).map (· + 1)))
+    (hc : cf ∈ oddFlags k) (hd : df ∈ oddFlags k) (hh : tail.headD 0 = head)
+    (h : allMatchingStatesShard k head = true) : MatchingConclusion ⟨k, 0 :: tail, cf, df⟩ := by
+  have ht := all_permutations_sound _ _ h tail hperm
+  simp only [hh, beq_self_eq_true, ↓reduceIte, checkMatchingOrder] at ht
+  exact checkMatchingState_sound _ _ _ (List.all_eq_true.mp (List.all_eq_true.mp ht cf hc) df hd)
+
+theorem boundary_head_lt (k : Nat) (hk : 0 < k) (tail : List Nat)
+    (hperm : tail.Perm ((List.range (k - 1)).map (· + 1))) : tail.headD 0 < k := by
+  cases tail with
+  | nil => exact hk
+  | cons a rest =>
+    have hm := hperm.mem_iff.mp (List.mem_cons_self a rest)
+    rcases List.mem_map.mp hm with ⟨i, hi, he⟩
+    have hil : i < k - 1 := List.mem_range.mp hi
+    simpa only [List.headD_cons] using (show a < k by omega)
 
 end C20.Boundary
 

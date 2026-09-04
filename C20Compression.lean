@@ -214,7 +214,52 @@ noncomputable def compressionExpansion {V : Type} [Finite V] (c : Cycle V) (s : 
     rw [hi]
     rfl
 
+def classOnGraph {V : Type} (s : V → Bool) (mask : {w // s w = true} → Bool) (v : V) : Bool :=
+  if h : s v = true then mask ⟨v, h⟩ else false
+
+theorem compression_selected {V : Type} [Finite V] (c : Cycle V) (s : V → Bool)
+    (connected : ConnectedCycle c) (nonempty : ∃ v, s v = true)
+    [Nontrivial {w // s w = true}] (mask : {w // s w = true} → Bool) (v : V) :
+    expandedSelected (compressionExpansion c s connected nonempty) mask v = classOnGraph s mask v := by
+  change (decide (firstDistance c s connected nonempty v = 0) &&
+    mask (firstIndex c s connected nonempty v)) = _
+  cases hs : s v with
+  | false =>
+    have hd : firstDistance c s connected nonempty v ≠ 0 := by
+      intro hd
+      have h := (firstDistance_zero_iff c s connected nonempty v).mp hd
+      rw [hs] at h
+      contradiction
+    simp [hd, classOnGraph, hs]
+  | true =>
+    have hd := (firstDistance_zero_iff c s connected nonempty v).mpr hs
+    have hi := firstIndex_selected c s connected nonempty ⟨v, hs⟩
+    simp [hd, hi, classOnGraph, hs]
+
+/-- Two weighted boundary matchings on the same spoke mask expand to
+one actual perfect matching, with that mask on exactly the kernel. -/
+theorem lift_compressed_matching {V : Type} [Finite V] (c d : Cycle V) (s : V → Bool)
+    (cc : ConnectedCycle c) (dc : ConnectedCycle d) (nonempty : ∃ v, s v = true)
+    [Nontrivial {w // s w = true}] (mask outer inner : {w // s w = true} → Bool)
+    (ho : ∀ w, bit (mask w) +
+      bit (boundaryIncoming (compressedCycle c s cc nonempty) (compressedGap c s cc nonempty) outer w) +
+      bit (outer w) = 1)
+    (hi : ∀ w, bit (mask w) +
+      bit (boundaryIncoming (compressedCycle d s dc nonempty) (compressedGap d s dc nonempty) inner w) +
+      bit (inner w) = 1) :
+    ∃ p : EdgeSet V, PerfectMatching c d p ∧ p.spoke = classOnGraph s mask := by
+  let xc := compressionExpansion c s cc nonempty
+  let xd := compressionExpansion d s dc nonempty
+  refine ⟨⟨classOnGraph s mask, expandedEdges xc outer, expandedEdges xd inner⟩, ⟨?_, ?_⟩, rfl⟩
+  · intro v
+    have h := expanded_incidence xc mask outer ho v
+    simpa only [xc, compression_selected] using h
+  · intro v
+    have h := expanded_incidence xd mask inner hi v
+    simpa only [xd, compression_selected] using h
+
 end C20
 
 #print axioms C20.nextSelected_injective
 #print axioms C20.compressionExpansion
+#print axioms C20.lift_compressed_matching
