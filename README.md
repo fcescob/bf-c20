@@ -5,7 +5,8 @@
 This release contains the computer-assisted proof, exhaustive verifier,
 and certificates, together with the ongoing Lean formalization.
 **The complete theorem has not yet passed end-to-end Lean verification.**
-Lean development files may currently fail to build. See
+The complete unbounded graph reduction has passed Lean; the remaining
+finite proof constants are being checked. See
 [FORMALIZATION.md](FORMALIZATION.md) and the verification workflows for
 the formalization status.
 
@@ -30,19 +31,18 @@ Berge–Fulkerson conjecture.
 
 | Part | Evidence in this package |
 |---|---|
-| Graph → finite boundary type; symmetry normalization | Mathematical proofs in [PROOF.md](PROOF.md), §§1–3 and 5 |
-| Finite dichotomy for k = 4, 6, 8, 10 | All 9,474,568 normalized states checked; 3,213,569 partition certificates replayed |
-| Odd-gap distance witnesses for five classes → six explicit perfect matchings | Lean theorem `C20.good_partition_cover`; the distance witnesses are supplied by the written odd-gap construction |
-| Five perfect matchings with partitioned spokes → six-edge double cover on two odd cycles | Kernel-checked Lean theorem `C20.five_matchings_cover` in [C20.lean](C20.lean) |
-| Three perfect matchings partitioning the edges → doubled cover | Lean theorem `C20.tait_double_cover` |
-| Actual graph implementation | 2,000 deterministic physical graph checks; supplementary tests, not the source of unbounded scope |
+| Actual graph → finite matching boundary theorem → six-matching cover | Lean theorem `C20.c20_from_finite`, including normalization, parity, indexing, and arbitrary path lengths |
+| Finite dichotomy for k = 4, 6, 8, 10 | All 9,474,568 normalized states checked; 3,213,569 partition certificates replayed by the original C++ package |
+| Direct finite matching certificates for the Lean graph reduction | Checker soundness proved in Lean; large finite constants still being checked |
+| Even cycle lengths | Complete Lean proof `C20.even_order_cover` |
+| Actual graph implementation | 2,000 deterministic physical graph checks; supplementary tests |
 
-**This is a complete computer-assisted proof with a partial Lean
-formalization, not an end-to-end Lean proof of C20.** Checked components
-now include the complete even-order branch, first-return compression,
-and construction of the cover from common-good classes. The assembled
-graph reduction and finite proof still require end-to-end checking. See
-[FORMALIZATION.md](FORMALIZATION.md) for the exact remaining obligations.
+**The full graph reduction is Lean checked.** The latest
+[successful verification](https://github.com/fcescob/bf-c20/actions/runs/33923291931)
+checks `C20.c20_from_finite` with only `propext`, `Classical.choice`, and
+`Quot.sound`. Its sole remaining premise is the precisely stated finite
+matching theorem. The finite proof jobs and the final `C20.c20` check
+remain pending. See [FORMALIZATION.md](FORMALIZATION.md).
 
 ## Reproduce
 
@@ -72,28 +72,32 @@ c++ -std=c++17 -O2 -UNDEBUG replay_certificate.cpp -o out/replay
 ./out/replay
 ```
 
-For the ongoing Lean development, with
-[elan](https://github.com/leanprover/elan) installed (this build may
-currently fail):
+For the checked graph reduction, with
+[elan](https://github.com/leanprover/elan) installed:
 
 ```sh
 lake build
-lake env lean C20.lean
+lake env lean C20Assemble.lean
 ```
 
-Lean **4.28.0** is pinned in `lean-toolchain`. The core `C20.lean` uses
-only bundled `Std`; the graph-reduction modules also use pinned Mathlib
-4.28.0. The default build audits theorem dependencies and rejects
-`sorryAx` and native-evaluation axioms. The separate experimental
-`C20NativeFinite.lean` uses `native_decide`, which also trusts Lean's
-compiler through `Lean.ofReduceBool`. It is excluded from the default
-build and does not establish the full C20 theorem.
+The full target, once the finite proof computation completes, is:
 
-The [GitHub Actions workflow](https://github.com/fcescob/bf-c20/actions)
-runs the proof and all finite checks on a remote runner.
-The [initial complete verification](https://github.com/fcescob/bf-c20/actions/runs/33914852262)
-passed the constructive Lean proof, exhaustive reproduction, certificate
-replay, and text-only distribution path.
+```sh
+lake build C20Theorem
+lake env lean C20Theorem.lean
+```
+
+Lean **4.28.0** and Mathlib **4.28.0** are pinned. The default build checks
+the whole unbounded deduction and excludes native finite computations.
+The finite proof uses `native_decide`, whose additional trust includes
+`Lean.ofReduceBool`, `Lean.trustCompiler`, and Lean's native compiler and
+core implementations. No C++ result is imported into Lean.
+
+The [GitHub Actions workflows](https://github.com/fcescob/bf-c20/actions)
+run the checks remotely. The complete theorem workflow also checks that
+reused finite proof artifacts come from exactly the same checker sources.
+A successful default build proves the graph reduction; completion of the
+separate `C20Theorem` build is required for the full Lean claim.
 
 ## Exact finite counts
 
@@ -111,7 +115,7 @@ handled by an explicit three-edge-colouring.
 ## Files and provenance
 
 - [PROOF.md](PROOF.md): complete written proof and certificate format.
-- [C20.lean](C20.lean), [FORMALIZATION.md](FORMALIZATION.md): checked formal component and its precise scope.
+- [C20.lean](C20.lean), [FORMALIZATION.md](FORMALIZATION.md): Lean sources and their precise scope.
 - [exhaustive_local.cpp](exhaustive_local.cpp): enumeration and certificate generation.
 - [replay_certificate.cpp](replay_certificate.cpp): independent checking algorithm with no partition search.
 - `partitions.bin.gz`: every non-even state's four classes, in the specified order.

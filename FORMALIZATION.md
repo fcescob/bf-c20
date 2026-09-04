@@ -1,136 +1,116 @@
-# What Lean proves
+# Lean verification status
 
-**Full formalization target:** `C20.C20Statement` in `C20Statement.lean` states
-the whole theorem from two connected cycles and a short alternating
-circuit, with no boundary or matching witnesses assumed. A checked proof
-of that statement is still required. Defining it is not proving it.
+The complete unbounded graph reduction has passed Lean. The remaining
+work is to close the large finite constants and check the final theorem
+with those dependencies. The public research release is authorized while
+that computation continues; it does not claim completed end-to-end Lean
+verification.
 
-**Public release status — 4 September 2026:** Francesco authorized
-publishing the computer-assisted proof package while Lean work continues,
-replacing the earlier requirement to keep the repository private.
-Publication is not a claim of completed end-to-end Lean verification.
+## Exact theorem and checked reduction
 
-The core statement is `C20.five_matchings_cover` in `C20.lean`:
-for **any vertex-position type V**, any two cycles with odd closed orbits,
-and any five perfect matchings whose spoke sets partition V, adjoining
-the spoke matching gives six perfect matchings covering every edge twice.
-There is no upper bound on a cycle length, and no finite census premise.
+`C20.C20Statement`, defined in `C20Statement.lean`, states:
+for every m ≥ 3, two connected successor cycles on `Fin m` and a simple
+spoke-alternating circuit of length at most 20 admit six perfect matchings
+covering each edge exactly twice. There is no upper bound on m and no
+supplied matching, boundary type, or gap witness in that target.
 
-The second theorem, `C20.tait_double_cover`, proves that three perfect
-matchings partitioning all edges produce a six-matching double cover by
-repeating each matching twice. These are the two terminal branches in the
-written proof.
+`C20.c20_from_finite` in `C20Assemble.lean` proves
+`MatchingBoundaryTheorem → C20Statement`. The entire deduction passed
+[run 33923291931](https://github.com/fcescob/bf-c20/actions/runs/33923291931),
+including all dependencies. Its axiom audit reports only `propext`,
+`Classical.choice`, and `Quot.sound`.
 
-The stronger constructive theorem `C20.good_partition_cover` takes five
-spoke classes that partition V, together with a `GapWitness` on each cycle
-for each class. It constructs the cycle edges, proves the resulting five
-edge sets are perfect matchings, and then applies the lifting theorem.
+The checked construction includes:
 
-`GapWitness.distance v` is the distance to the next selected position,
-allowing zero at a selected position. Its explicit laws say: distance is
-zero exactly at selected positions; away from them it decreases by one
-along a successor step; immediately after a selected position it is even.
-The written odd-gap argument supplies those laws because consecutive
-selected positions are separated by an odd number of edges. The formal
-construction selects an outgoing cycle edge exactly when the distance is
-positive and even. `gap_incidence` checks its exact vertex incidence.
+- The complete even-order case by alternating cycle edges.
+- Extraction of the actual circuit vertices and its two domino matchings.
+- First-return compression from the actual connected cycles, with exact
+  distances and parity laws for paths of arbitrary length.
+- Normalization at a common root, reversing one cycle when needed.
+- The proof that the compressed flags have odd parity on odd cycles.
+- Transfer from literal finite row equations to the compressed cycles.
+- Expansion of the finite matching patterns into physical perfect
+  matchings and assembly of the six-matching double cover.
 
-## Further checked components
+The principal modules are `C20Cycles`, `C20Kernel`, `C20Even`,
+`C20Compression`, `C20Domino`, `C20Coordinates`, `C20Normalize`,
+`C20Encoding`, `C20Reversal`, `C20ParityFinite`, `C20Parity`,
+`C20Expansion`, `C20Three`, and `C20Assemble`. The default `lake build`
+checks this deduction. It has no admitted proof or native-evaluation axiom.
 
-`C20Gaps.lean` now proves `C20.common_good_partition_cover`: the actual
-nonempty common-good cyclic-arc classes imply the full cover. It derives
-first-hit distances from connectedness, so those distances are no longer
-assumed. This component passed remote Lean checking in run 33915901637.
+## Remaining finite proof
 
-`C20Boundary.lean` proves soundness of explicit boundary witnesses and
-completeness of the permutation generator. `BoundarySearch.lean` proves
-that a successful finite Boolean check implies the boundary dichotomy
-for every enumerated permutation and odd flag pair. Pure Lean runtime
-checks through k=10 passed. Run 33916749650 checked the size-10 Boolean
-in 22:05.02 on a remote runner. These runtime checks alone are not closed
-Lean proofs of the finite constants. `C20Finite.lean` closes k=4 by
-kernel reduction. A k=6 kernel-reduction probe exceeded 15 minutes.
+`MatchingBoundaryTheorem` quantifies over k ∈ {2,4,6,8,10}, every order
+`0 :: tail` whose tail permutes {1,…,k−1}, and every pair of odd flag
+vectors. It asserts the existence of two or four explicit matching
+patterns whose spoke masks partition the k vertices. It does not assume
+connectivity of the two domino matchings, so it covers more states than
+the original symmetry-reduced C++ census.
 
-`C20Expansion.lean` proves local matching incidence is preserved by
-expanding boundary edges into paths of arbitrary lengths, given the
-stated first-hit compression equations. It passed Lean checking in
-run 33917042568; that run failed later at the separate finite-constant
-proof, not at the expansion lemma.
+`C20BoundaryMatching.lean` proves that the Boolean checker implies this
+literal matching conclusion. Every proposed pattern is checked at every
+vertex in both boundary cycles. `BoundarySearch.lean` supplies candidate
+masks; the proof does not assume that its search heuristic is correct.
 
-`C20Cycles.lean` and `C20Kernel.lean` establish exact cycle periods and
-extract the actual circuit vertex set and cyclic lists. `C20Even.lean`
-proves the full graph conclusion for every even m. `C20Compression.lean`
-derives the connected boundary cycle and expansion interface from any
-nontrivial selected set. These components passed run 33919711175.
+`C20MatchingFinite/Head0.lean` through `Head9.lean` divide the k=10
+computation by the second vertex of the order. These use `native_decide`.
+`C20MatchingFinite.lean` combines every shard and the smaller sizes into
+`matching_up_to_ten_native`. The expensive proof jobs are still running.
+A completed runtime calculation alone is not a closed Lean theorem.
 
-The separate `C20NativeFinite.lean` experiment attempts all remaining
-finite constants using Lean's native evaluator. Its trust boundary
-includes `Lean.ofReduceBool`, the compiler, and native implementations
-of core operations. This is not kernel-only evaluation. The experiment
-is excluded from the default build and does not establish the full graph theorem.
+`C20Theorem.lean` applies the finite theorem to `c20_from_finite` to produce
+`C20.c20 : C20Statement`. This file and all finite dependencies must pass
+together before the result is described as fully Lean verified. The
+complete theorem workflow checks source identity when it reuses shard
+artifacts from a previous run.
 
-End-to-end Lean verification of the complete C20 theorem remains pending.
-Recent graph-reduction and assembly files are development work until the
-complete proof and its dependencies pass together.
+## Reproduction and trust
 
-## Encoding and semantics
+With the pinned toolchain installed:
 
-`Cycle V` gives mutually inverse successor and predecessor maps, with no
-loops. An `EdgeSet V` has Boolean indicators for a spoke at v, the outer
-cycle edge from v to its outer successor, and the inner cycle edge from v
-to its inner successor. These label the actual edges of a cycle-permutation
-graph after using M to identify both cycles' position sets. The theorem
-works for a broader class of odd closed orbits too.
+```sh
+lake build
+lake env lean C20Assemble.lean
+```
 
-At the outer copy of v the incident edges are exactly its spoke, the
-outgoing outer edge at v, and the incoming outer edge at `prev v`.
-`PerfectMatching` asserts their three Boolean indicators sum to one; it
-asserts the analogous equation at the inner copy. Thus it encodes the
-usual perfect-matching condition directly. The cycle edges are labelled
-objects; if this model is instantiated on 2-cycles it retains parallel
-edges. The written theorem uses simple cycles of length at least three.
+These commands check and print dependencies for the complete graph
+reduction. The full proof target additionally runs the finite computations:
 
-`DoubleCover` asserts both that all six selected edge sets are perfect
-matchings and that every spoke, outer edge and inner edge has multiplicity
-two. It permits repeated matchings. `Five` and `Six` are explicit ordered
-tuples, with no quotient by permutations.
+```sh
+lake build C20Theorem
+lake env lean C20Theorem.lean
+```
 
-The proof first sums the five perfect-matching equations at a vertex.
-Exactly one uses the spoke, so the adjacent cycle-edge counts add to four.
-`odd_recurrence` proves that this recurrence on an odd closed orbit forces
-every count to be two. Adding M then covers every spoke twice too.
+Lean 4.28.0 and Mathlib 4.28.0 are pinned in `lean-toolchain` and
+`lake-manifest.json`. The finite checker uses bundled `Std`; Mathlib is
+used for structural graph and permutation reasoning. No external C++
+result is imported into Lean.
 
-## Formal trust boundary
+The finite proof deliberately uses native evaluation. In addition to the
+usual logical axioms, `native_decide` trusts `Lean.ofReduceBool`,
+`Lean.trustCompiler`, Lean's compiler, and the native implementations of
+core operations. This is a larger trusted base than kernel-only
+reduction. The final axiom audit must contain no `sorryAx` or user-supplied
+axiom. The repository retains earlier finite-check experiments, but the
+final target uses the direct matching checker described above.
 
-Run `lake build` with the pinned Lean 4.28.0 toolchain, then
-`lake env lean C20.lean` to print the axiom dependencies. That core file
-imports `Std`; the structural modules also import pinned Mathlib.
-Arithmetic automation in the default build produces kernel-checked terms.
-No external C++ result is imported into Lean. The default build has no
-added axiom, admitted proof, or `native_decide` proof. The separate native
-experiment and its additional trust are described above. The basic Lean principles
-`propext` and `Quot.sound` are reported by the axiom audit; the constructive
-gap proof also uses `Classical.choice` through standard proof automation.
+## Graph semantics and scope
 
-Before describing the result as fully formalized, the remaining work is:
+`Cycle V` has mutually inverse successor and predecessor maps and no
+loops. `ConnectedCycle` makes each map one cyclic orbit. For `Fin m` and
+m ≥ 3 these encode two simple m-cycles. The spoke matching identifies
+their vertex-position sets. `ShortCircuit` lists distinct spoke positions
+with alternating outer and inner adjacency, so its k positions describe
+a circuit with 2k edges.
 
-1. Check the assembled graph reduction, including all normalization, parity, and indexing connections.
-2. Complete the finite matching-certificate theorem. Successful runtime calculations alone are not proof terms for the finite constants.
-3. Check the final theorem with all dependencies and document its axiom audit, including any native-evaluation trust.
+`EdgeSet` records a Boolean indicator for each spoke and each outgoing
+outer and inner cycle edge. `PerfectMatching` asserts at each vertex that
+the spoke, incoming edge, and outgoing edge indicators sum to one.
+`DoubleCover` asserts six perfect matchings and multiplicity two for
+every edge. Repeated matchings are allowed.
 
-Those steps are proved in the written argument and checked computationally
-where applicable. The complete C20 result is therefore computer-assisted;
-the Lean component verifies its final unbounded lifting implications.
-A successful Lean build alone must not be cited as a full formal proof of
-the short-circuit theorem.
-
-## Formalization mechanism
-
-Target: the lifting implication consumed by the C20 cover construction.
-Representation: exact Boolean edge incidence and integer multiplicities.
-Candidate lemma: the universally quantified `five_matchings_cover` above.
-Inputs: five physical perfect matchings and a spoke partition, derived
-in §4 of the written proof. Certificate: a Lean kernel-checked proof term.
-Kill condition: a scope mismatch, an admitted obligation, or a compilation
-failure prevents describing this component as formally proved. The
-finite reduction is never replaced by a sampled graph calculation.
+The formal target is existence of a six-matching double cover. The
+additional class-2 statement in `PROOF.md` specifying two distinguished
+members is not separately named in the current formal target. Neither
+the written nor formal result asserts that every cycle-permutation graph
+has an alternating circuit of length at most 20.
