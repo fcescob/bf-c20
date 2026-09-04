@@ -25,8 +25,10 @@ theorem adjacent_reverse_iff {V : Type} (c : Cycle V) (u v : V) :
   constructor
   · intro h
     rcases h with h | h
-    · exact Or.inr (by simpa only [c.next_prev] using (congrArg c.next h).symm)
-    · exact Or.inl (by simpa only [c.next_prev] using (congrArg c.next h).symm)
+    · change c.prev u = v at h
+      exact Or.inr (by simpa only [c.next_prev] using (congrArg c.next h).symm)
+    · change c.prev v = u at h
+      exact Or.inl (by simpa only [c.next_prev] using (congrArg c.next h).symm)
   · intro h
     rcases h with h | h
     · exact Or.inr (by simpa only [c.prev_next] using (congrArg c.prev h).symm)

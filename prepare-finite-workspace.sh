@@ -6,6 +6,7 @@ cp C20.lean C20Gaps.lean C20Boundary.lean BoundarySearch.lean \
 cp C20MatchingFinite/Head*.lean out/finite/C20MatchingFinite/
 cat > out/finite/lakefile.toml <<'LAKE'
 name = "C20FiniteStandalone"
+precompileModules = true
 defaultTargets = ["C20BoundaryMatching"]
 [[lean_lib]]
 name = "C20"
