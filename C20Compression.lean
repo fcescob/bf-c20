@@ -128,6 +128,93 @@ theorem nextSelected_injective {V : Type} (c : Cycle V) (s : V → Bool)
   · exact ordered u v hle h
   · exact (ordered v u (by omega) h.symm).symm
 
+theorem nextSelected_connected {V : Type} (c : Cycle V) (s : V → Bool)
+    (connected : ConnectedCycle c) (nonempty : ∃ v, s v = true) :
+    ∀ u v : {w // s w = true}, ∃ n, walk (nextSelected c s connected nonempty) n u = v := by
+  let idx := firstIndex c s connected nonempty
+  let step := nextSelected c s connected nonempty
+  have lift : ∀ n u, ∃ t, walk step t (idx u) = idx (walk c.next n u) := by
+    intro n
+    induction n with
+    | zero => intro u; exact ⟨0, rfl⟩
+    | succ n ih =>
+      intro u
+      rcases ih u with ⟨t, ht⟩
+      cases hs : s (walk c.next n u) with
+      | false =>
+        refine ⟨t, ?_⟩
+        rw [walk, ← firstIndex_step c s connected nonempty _ hs]
+        exact ht
+      | true =>
+        have hid : idx (walk c.next n u) = ⟨walk c.next n u, hs⟩ :=
+          firstIndex_selected c s connected nonempty ⟨_, hs⟩
+        refine ⟨t + 1, ?_⟩
+        rw [walk, ht, hid]
+        rfl
+  intro u v
+  rcases connected u v with ⟨n, hn⟩
+  rcases lift n u.val with ⟨t, ht⟩
+  refine ⟨t, ?_⟩
+  simpa only [idx, hn, firstIndex_selected] using ht
+
+noncomputable def compressedCycle {V : Type} [Finite V] (c : Cycle V) (s : V → Bool)
+    (connected : ConnectedCycle c) (nonempty : ∃ v, s v = true)
+    [Nontrivial {w // s w = true}] : Cycle {w // s w = true} := by
+  classical
+  let step := nextSelected c s connected nonempty
+  let p := Equiv.ofBijective step
+    (Finite.bijective_iff_injective.mpr (nextSelected_injective c s connected nonempty))
+  refine ⟨step, p.symm, p.symm_apply_apply, p.apply_symm_apply, ?_⟩
+  intro v hv
+  rcases exists_ne v with ⟨w, hw⟩
+  rcases nextSelected_connected c s connected nonempty v w with ⟨n, hn⟩
+  have fixed : ∀ t, walk step t v = v := by
+    intro t
+    induction t with
+    | zero => rfl
+    | succ t ih => rw [walk, ih]; exact hv
+  exact hw (hn.symm.trans (fixed n))
+
+theorem compressedCycle_connected {V : Type} [Finite V] (c : Cycle V) (s : V → Bool)
+    (connected : ConnectedCycle c) (nonempty : ∃ v, s v = true)
+    [Nontrivial {w // s w = true}] :
+    ConnectedCycle (compressedCycle c s connected nonempty) :=
+  nextSelected_connected c s connected nonempty
+
+noncomputable def compressedGap {V : Type} (c : Cycle V) (s : V → Bool)
+    (connected : ConnectedCycle c) (nonempty : ∃ v, s v = true)
+    (v : {w // s w = true}) : Bool :=
+  parityBit (firstDistance c s connected nonempty (c.next v))
+
+/-- Every nontrivial selected set supplies the actual expansion interface.
+No distances, boundary order, or gap parities are assumed as hypotheses. -/
+noncomputable def compressionExpansion {V : Type} [Finite V] (c : Cycle V) (s : V → Bool)
+    (connected : ConnectedCycle c) (nonempty : ∃ v, s v = true)
+    [Nontrivial {w // s w = true}] :
+    Expansion c (compressedCycle c s connected nonempty) (compressedGap c s connected nonempty) := by
+  classical
+  refine ⟨firstIndex c s connected nonempty, firstDistance c s connected nonempty, ?_, ?_, ?_⟩
+  · intro v hv
+    have hs : s v = false := by
+      cases h : s v
+      · rfl
+      · exact False.elim (hv ((firstDistance_zero_iff c s connected nonempty v).mpr h))
+    exact ⟨firstDistance_step c s connected nonempty v hs,
+      firstIndex_step c s connected nonempty v hs⟩
+  · intro v hv
+    have hs := (firstDistance_zero_iff c s connected nonempty v).mp hv
+    have hi := firstIndex_selected c s connected nonempty ⟨v, hs⟩
+    change firstIndex c s connected nonempty (c.next v) =
+      nextSelected c s connected nonempty (firstIndex c s connected nonempty v)
+    rw [hi]
+    rfl
+  · intro v hv
+    have hs := (firstDistance_zero_iff c s connected nonempty v).mp hv
+    have hi := firstIndex_selected c s connected nonempty ⟨v, hs⟩
+    rw [hi]
+    rfl
+
 end C20
 
 #print axioms C20.nextSelected_injective
+#print axioms C20.compressionExpansion
