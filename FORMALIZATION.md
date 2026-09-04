@@ -25,6 +25,30 @@ selected positions are separated by an odd number of edges. The formal
 construction selects an outgoing cycle edge exactly when the distance is
 positive and even. `gap_incidence` checks its exact vertex incidence.
 
+## Further checked components
+
+`C20Gaps.lean` now proves `C20.common_good_partition_cover`: the actual
+nonempty common-good cyclic-arc classes imply the full cover. It derives
+first-hit distances from connectedness, so those distances are no longer
+assumed. This component passed remote Lean checking in run 33915901637.
+
+`C20Boundary.lean` proves soundness of explicit boundary witnesses and
+completeness of the permutation generator. `BoundarySearch.lean` proves
+that a successful finite Boolean check implies the boundary dichotomy
+for every enumerated permutation and odd flag pair. Pure Lean runtime
+checks through k=8 passed. These runtime checks alone are not closed
+Lean proofs of the finite constants; the size-10 run and formal finite
+constant proofs are separate obligations.
+
+`C20Expansion.lean` proves local matching incidence is preserved by
+expanding boundary edges into paths of arbitrary lengths, given the
+stated first-hit compression equations. It passed Lean checking in
+run 33917042568; that run failed later at the separate finite-constant
+proof, not at the expansion lemma.
+
+The complete C20 theorem is still unformalized and the publication gate
+remains closed.
+
 ## Encoding and semantics
 
 `Cycle V` gives mutually inverse successor and predecessor maps, with no
@@ -66,8 +90,7 @@ The following steps are **not** yet Lean formalized:
 
 1. Extracting and normalizing the boundary type from Q.
 2. Identifying complement cycle parity with the auxiliary weighted graph.
-3. Proving exhaustive coverage and checking the full finite boundary lemma in Lean.
-4. Extracting the `GapWitness` distance functions from the written cyclic-arc definition of common-good classes. Once those witnesses are supplied, the matching construction and coverage are Lean checked for arbitrary gap lengths.
+3. Closing the full finite boundary theorem in Lean. Permutation-enumeration completeness and witness-checker soundness are proved, but the successful runtime calculations are not themselves proof terms for the finite constants.
 5. Extracting the two alternating perfect matchings from an even complement.
 
 Those steps are proved in the written argument and checked computationally

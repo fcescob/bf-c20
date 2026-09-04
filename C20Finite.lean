@@ -6,7 +6,7 @@ set_option maxHeartbeats 0
 namespace C20.Boundary
 
 /-- Smallest boundary case, evaluated and checked by the Lean kernel. -/
-theorem allBoundaryStates_four : allBoundaryStates 4 = true := by decide
+theorem allBoundaryStates_four : allBoundaryStates 4 = true := by decide +kernel
 
 theorem boundary_four (tail : List Nat) (cf df : Nat)
     (hperm : tail.Perm [1, 2, 3])
