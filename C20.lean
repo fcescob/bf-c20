@@ -181,8 +181,75 @@ theorem tait_double_cover {V : Type} (c d : Cycle V) (n a b : EdgeSet V)
   · intro v; have h := ho v; simp only [total]; omega
   · intro v; have h := hi v; simp only [total]; omega
 
+/-! ## Constructing the perfect matchings from odd-gap data
+
+For a selected spoke set S, distance v is the number of successor steps
+from v to the next S-position, allowing zero at an S-position itself.
+The three laws below express exactly the local facts used in constructing
+the alternating matching on the paths between S-positions. In particular,
+after a selected position the remaining distance is even, because the
+whole gap has odd edge length. No distance bound is imposed.
+-/
+
+structure GapWitness {V : Type} (c : Cycle V) (selected : V → Bool) where
+  distance : V → Nat
+  zero_iff : ∀ v, distance v = 0 ↔ selected v = true
+  step : ∀ v, selected v = false → distance v = distance (c.next v) + 1
+  after_even : ∀ v, selected v = true → distance (c.next v) % 2 = 0
+
+/-- Match along a gap starting at every positive even remaining distance. -/
+def gapEdges {V : Type} {c : Cycle V} {s : V → Bool}
+    (g : GapWitness c s) (v : V) : Bool :=
+  decide (0 < g.distance v ∧ g.distance v % 2 = 0)
+
+theorem gap_incidence {V : Type} {c : Cycle V} {s : V → Bool}
+    (g : GapWitness c s) (v : V) :
+    bit (s v) + bit (gapEdges g (c.prev v)) + bit (gapEdges g v) = 1 := by
+  have z := g.zero_iff v
+  have zp := g.zero_iff (c.prev v)
+  have st := g.step (c.prev v)
+  have ev := g.after_even (c.prev v)
+  simp only [c.next_prev] at st ev
+  cases hv : s v <;> cases hp : s (c.prev v) <;>
+    simp only [hv, hp, Bool.false_eq_true, Bool.true_eq_false,
+      iff_false, iff_true] at z zp st ev <;>
+    simp only [bit, gapEdges, hv, Bool.false_eq_true, Bool.true_eq_true,
+      decide_eq_true_eq] <;>
+    (repeat' first | split | progress subst_vars) <;> omega
+
+/-- One spoke class with odd-gap distance data on each of the two cycles. -/
+structure GoodClass {V : Type} (c d : Cycle V) where
+  selected : V → Bool
+  outerGap : GapWitness c selected
+  innerGap : GapWitness d selected
+
+def classMatching {V : Type} {c d : Cycle V} (s : GoodClass c d) : EdgeSet V :=
+  ⟨s.selected, gapEdges s.outerGap, gapEdges s.innerGap⟩
+
+theorem class_matching_perfect {V : Type} {c d : Cycle V}
+    (s : GoodClass c d) : PerfectMatching c d (classMatching s) := by
+  exact ⟨gap_incidence s.outerGap, gap_incidence s.innerGap⟩
+
+def classMatchings {V : Type} {c d : Cycle V} (s : Five (GoodClass c d)) :
+    Five (EdgeSet V) :=
+  ⟨classMatching s.p₀, classMatching s.p₁, classMatching s.p₂,
+    classMatching s.p₃, classMatching s.p₄⟩
+
+/-- Constructive lifting from five classes with odd-gap data on both
+cycles. This includes construction and proof of all six perfect matchings. -/
+theorem good_partition_cover {V : Type} (c d : Cycle V)
+    (hc : OddCycle c) (hd : OddCycle d) (s : Five (GoodClass c d))
+    (partition : ∀ v, total s (fun q => bit (q.selected v)) = 1) :
+    DoubleCover c d ⟨spokes V, classMatchings s⟩ := by
+  apply five_matchings_cover c d hc hd
+  · exact ⟨class_matching_perfect s.p₀, class_matching_perfect s.p₁,
+      class_matching_perfect s.p₂, class_matching_perfect s.p₃,
+      class_matching_perfect s.p₄⟩
+  · exact partition
+
 end C20
 
 #print axioms C20.odd_recurrence
 #print axioms C20.five_matchings_cover
 #print axioms C20.tait_double_cover
+#print axioms C20.good_partition_cover

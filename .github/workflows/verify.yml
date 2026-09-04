@@ -31,3 +31,7 @@ jobs:
         run: sha256sum -c SHA256SUMS
       - name: Reproduce every finite case and physical checks
         run: ./verify.sh
+      - name: Reproduce text-only distribution without banked certificate
+        run: |
+          mv partitions.bin.gz out/banked.bin.gz
+          ./verify.sh
