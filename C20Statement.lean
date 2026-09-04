@@ -4,7 +4,7 @@ import C20Gaps
 
 This file defines the full graph theorem, rather than a conditional
 lifting theorem. There is intentionally no claim that it is proved yet.
-It must be inhabited by a checked proof before the repository is public.
+The public research release does not claim its end-to-end verification is complete.
 
 The graph has vertices (outer,v) and (inner,v), with a spoke between the
 two copies of v and the cycle edges given by c and d. Connected successor

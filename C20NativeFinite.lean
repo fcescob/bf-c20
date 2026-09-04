@@ -6,7 +6,7 @@ IMPORTANT: `native_decide` trusts Lean.ofReduceBool, the Lean compiler,
 and native implementations of core data operations. This is a larger
 trust boundary than the kernel-only theorem in C20Finite.lean.
 This file is separate from the default build and does not establish the
-full graph theorem or open the publication gate.
+full graph theorem or establish end-to-end Lean verification.
 -/
 
 set_option maxRecDepth 100000

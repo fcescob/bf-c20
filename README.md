@@ -1,12 +1,13 @@
 # C20: six perfect matchings from a short alternating circuit
 
-**UNPUBLISHED DRAFT — keep private.**
+**Public research release — full Lean verification is in progress.**
 
-The user requires a complete, correct, checked Lean proof of C20 before
-publication. The current Lean component is partial and does not meet that
-condition. The repository was made private and the public gist deleted
-on 4 September 2026. Do not republish either package until the full
-formalization is complete.
+This release contains the computer-assisted proof, exhaustive verifier,
+and certificates, together with the ongoing Lean formalization.
+**The complete theorem has not yet passed end-to-end Lean verification.**
+Lean development files may currently fail to build. See
+[FORMALIZATION.md](FORMALIZATION.md) and the verification workflows for
+the formalization status.
 
 **Computer-assisted theorem · 4 September 2026**
 
@@ -39,8 +40,8 @@ Berge–Fulkerson conjecture.
 **This is a complete computer-assisted proof with a partial Lean
 formalization, not an end-to-end Lean proof of C20.** Checked components
 now include the complete even-order branch, first-return compression,
-and construction of the cover from common-good classes. The odd-order
-reduction and full finite proof still need to be connected. See
+and construction of the cover from common-good classes. The assembled
+graph reduction and finite proof still require end-to-end checking. See
 [FORMALIZATION.md](FORMALIZATION.md) for the exact remaining obligations.
 
 ## Reproduce
@@ -59,7 +60,7 @@ This regenerates every finite case, compares the certificate byte for
 byte, independently replays it, and checks the 2,000 physical lifts.
 Assertions are explicitly enabled. `out/` holds generated files.
 The repository includes the 3.6 MiB compressed certificate. A text-only
-copy, such as the accompanying gist, regenerates the certificate itself
+copy regenerates the certificate itself
 and checks its published SHA-256.
 
 For certificate replay alone:
@@ -71,7 +72,9 @@ c++ -std=c++17 -O2 -UNDEBUG replay_certificate.cpp -o out/replay
 ./out/replay
 ```
 
-With [elan](https://github.com/leanprover/elan) installed:
+For the ongoing Lean development, with
+[elan](https://github.com/leanprover/elan) installed (this build may
+currently fail):
 
 ```sh
 lake build

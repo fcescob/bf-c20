@@ -1,9 +1,14 @@
 # What Lean proves
 
-**Publication target:** `C20.C20Statement` in `C20Statement.lean` states
+**Full formalization target:** `C20.C20Statement` in `C20Statement.lean` states
 the whole theorem from two connected cycles and a short alternating
 circuit, with no boundary or matching witnesses assumed. A checked proof
 of that statement is still required. Defining it is not proving it.
+
+**Public release status — 4 September 2026:** Francesco authorized
+publishing the computer-assisted proof package while Lean work continues,
+replacing the earlier requirement to keep the repository private.
+Publication is not a claim of completed end-to-end Lean verification.
 
 The core statement is `C20.five_matchings_cover` in `C20.lean`:
 for **any vertex-position type V**, any two cycles with odd closed orbits,
@@ -62,10 +67,11 @@ The separate `C20NativeFinite.lean` experiment attempts all remaining
 finite constants using Lean's native evaluator. Its trust boundary
 includes `Lean.ofReduceBool`, the compiler, and native implementations
 of core operations. This is not kernel-only evaluation. The experiment
-is excluded from the default build and does not open the publication gate.
+is excluded from the default build and does not establish the full graph theorem.
 
-The complete C20 theorem is still unformalized and the publication gate
-remains closed.
+End-to-end Lean verification of the complete C20 theorem remains pending.
+Recent graph-reduction and assembly files are development work until the
+complete proof and its dependencies pass together.
 
 ## Encoding and semantics
 
@@ -106,12 +112,11 @@ experiment and its additional trust are described above. The basic Lean principl
 `propext` and `Quot.sound` are reported by the axiom audit; the constructive
 gap proof also uses `Classical.choice` through standard proof automation.
 
-The following steps are **not** yet Lean formalized:
+Before describing the result as fully formalized, the remaining work is:
 
-1. Completing the domino normalization and boundary-flag dictionary from Q. Vertex-set extraction and first-return compression are checked.
-2. Identifying complement cycle parity with the auxiliary weighted graph.
-3. Closing the full finite boundary theorem in Lean. Permutation-enumeration completeness and witness-checker soundness are proved, but the successful runtime calculations are not themselves proof terms for the finite constants.
-4. Transferring both finite conclusions back to the actual graph, including extracting alternating matchings from an even switched complement.
+1. Check the assembled graph reduction, including all normalization, parity, and indexing connections.
+2. Complete the finite matching-certificate theorem. Successful runtime calculations alone are not proof terms for the finite constants.
+3. Check the final theorem with all dependencies and document its axiom audit, including any native-evaluation trust.
 
 Those steps are proved in the written argument and checked computationally
 where applicable. The complete C20 result is therefore computer-assisted;
