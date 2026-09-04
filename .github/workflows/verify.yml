@@ -45,6 +45,7 @@ jobs:
           lake env lean C20BoundaryMatching.lean | tee -a lean-axioms.log
           lake env lean C20Three.lean | tee -a lean-axioms.log
           lake env lean C20Coordinates.lean | tee -a lean-axioms.log
+          lake env lean C20Normalize.lean | tee -a lean-axioms.log
           if grep -E 'sorryAx|ofReduceBool|native_decide' lean-axioms.log; then exit 1; fi
       - name: Build and probe the Lean boundary computation
         run: |
