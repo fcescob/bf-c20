@@ -47,8 +47,10 @@ theorem toPerm_order {m : Nat} (hm : 0 < m) (c : Cycle (Fin m))
 theorem walk_full_cycle {m : Nat} (hm : 0 < m) (c : Cycle (Fin m))
     (connected : ConnectedCycle c) : ∀ v, walk c.next m v = v := by
   intro v
-  rw [← toPerm_pow_apply, ← toPerm_order hm c connected, pow_orderOf_eq_one]
-  rfl
+  have h := congrArg (fun p : Equiv.Perm (Fin m) => p v)
+    (pow_orderOf_eq_one c.toPerm)
+  simpa only [toPerm_order hm c connected, toPerm_pow_apply,
+    Equiv.Perm.one_apply] using h
 
 theorem oddCycle_of_odd_card {m : Nat} (hm : m % 2 = 1) (c : Cycle (Fin m))
     (connected : ConnectedCycle c) : OddCycle c := by
