@@ -30,7 +30,7 @@ theorem cyclicPrev_val {k : Nat} (i : Fin k) :
   change j.val = _
   split_ifs at hv with hjk
   · have he : i.val + k - 1 = k + j.val := by omega
-    rw [he, Nat.add_mod, Nat.mod_self, Nat.zero_add, Nat.mod_eq_of_lt hj]
+    simp [he, Nat.add_mod, Nat.mod_eq_of_lt hj]
   · have he : i.val + k - 1 = j.val := by omega
     rw [he, Nat.mod_eq_of_lt hj]
 
@@ -39,7 +39,7 @@ def orderLabels {W : Type} {k : Nat} (coords : Fin k ≃ W) (labels : W ≃ Fin 
 
 theorem orderLabels_perm {W : Type} {k : Nat} (coords : Fin k ≃ W) (labels : W ≃ Fin k) :
     (orderLabels coords labels).Perm (List.range k) := by
-  have h := (coords.trans labels).ofFn_comp_perm (fun i : Fin k => i.val)
+  have h := Equiv.Perm.ofFn_comp_perm (coords.trans labels) (fun i : Fin k => i.val)
   simpa only [orderLabels, Function.comp_def, Equiv.trans_apply, List.ofFn_val] using h
 
 /-- The literal finite row equation is exactly the abstract weighted
