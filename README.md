@@ -1,4 +1,4 @@
-# C20: six perfect matchings from a short alternating circuit
+# Berge–Fulkerson C(20): six perfect matchings from a short alternating circuit
 
 **Public research release — full Lean verification is in progress.**
 
@@ -51,8 +51,8 @@ No mathematical library, solver, private repository, AWS account or
 original research environment is needed.
 
 ```sh
-git clone https://github.com/fcescob/c20-cover.git
-cd c20-cover
+git clone https://github.com/fcescob/bf-c20.git
+cd bf-c20
 ./verify.sh
 ```
 
@@ -89,9 +89,9 @@ only bundled `Std`; the graph-reduction modules also use pinned Mathlib
 compiler through `Lean.ofReduceBool`. It is excluded from the default
 build and does not establish the full C20 theorem.
 
-The [GitHub Actions workflow](https://github.com/fcescob/c20-cover/actions)
+The [GitHub Actions workflow](https://github.com/fcescob/bf-c20/actions)
 runs the proof and all finite checks on a remote runner.
-The [initial complete verification](https://github.com/fcescob/c20-cover/actions/runs/33914852262)
+The [initial complete verification](https://github.com/fcescob/bf-c20/actions/runs/33914852262)
 passed the constructive Lean proof, exhaustive reproduction, certificate
 replay, and text-only distribution path.
 
