@@ -1,6 +1,6 @@
 name = "c20-cover"
 version = "1.0.0"
-defaultTargets = ["C20", "C20Gaps", "C20Boundary"]
+defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion"]
 
 [[lean_lib]]
 name = "C20"
@@ -10,6 +10,9 @@ name = "C20Gaps"
 
 [[lean_lib]]
 name = "C20Boundary"
+
+[[lean_lib]]
+name = "C20Expansion"
 
 [[lean_exe]]
 name = "boundary-search"
