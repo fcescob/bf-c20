@@ -9,6 +9,9 @@ user-supplied axiom. The finite computation uses Lean's native evaluator;
 its additional compiler trust is explicit below and in
 [FORMALIZATION.md](FORMALIZATION.md).
 
+A complete text-only copy is available as a
+[self-contained gist](https://gist.github.com/fcescob/6d1052a542cca54bc4c7d67df0487261).
+
 **Computer-assisted theorem · 4 September 2026**
 
 Let a graph consist of two disjoint cycles of the same length, together
