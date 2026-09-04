@@ -4,12 +4,15 @@ defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion", "C20Statement
 
 [[lean_lib]]
 name = "C20"
+precompileModules = true
 
 [[lean_lib]]
 name = "C20Gaps"
+precompileModules = true
 
 [[lean_lib]]
 name = "C20Boundary"
+precompileModules = true
 
 [[lean_lib]]
 name = "C20Expansion"
@@ -37,9 +40,11 @@ name = "C20MatchingArcs"
 
 [[lean_lib]]
 name = "BoundarySearch"
+precompileModules = true
 
 [[lean_lib]]
 name = "C20BoundaryMatching"
+precompileModules = true
 
 [[lean_lib]]
 name = "C20Three"
@@ -64,6 +69,12 @@ name = "C20Parity"
 
 [[lean_lib]]
 name = "C20Assemble"
+
+[[lean_lib]]
+name = "C20MatchingFinite"
+
+[[lean_lib]]
+name = "C20Theorem"
 
 [[lean_exe]]
 name = "boundary-search"
