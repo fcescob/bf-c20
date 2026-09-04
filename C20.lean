@@ -211,11 +211,8 @@ theorem gap_incidence {V : Type} {c : Cycle V} {s : V → Bool}
   have ev := g.after_even (c.prev v)
   simp only [c.next_prev] at st ev
   cases hv : s v <;> cases hp : s (c.prev v) <;>
-    simp only [hv, hp, Bool.false_eq_true, Bool.true_eq_false,
-      iff_false, iff_true] at z zp st ev <;>
-    simp only [bit, gapEdges, hv, Bool.false_eq_true, Bool.true_eq_true,
-      decide_eq_true_eq] <;>
-    (repeat' first | split | progress subst_vars) <;> omega
+    simp_all [bit, gapEdges] <;>
+    (repeat' split) <;> omega
 
 /-- One spoke class with odd-gap distance data on each of the two cycles. -/
 structure GoodClass {V : Type} (c d : Cycle V) where

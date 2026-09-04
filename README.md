@@ -23,17 +23,17 @@ Berge–Fulkerson conjecture.
 |---|---|
 | Graph → finite boundary type; symmetry normalization | Mathematical proofs in [PROOF.md](PROOF.md), §§1–3 and 5 |
 | Finite dichotomy for k = 4, 6, 8, 10 | All 9,474,568 normalized states checked; 3,213,569 partition certificates replayed |
-| Common-good classes → five perfect matchings | Mathematical construction in [PROOF.md](PROOF.md), §4 |
+| Odd-gap distance witnesses for five classes → six explicit perfect matchings | Lean theorem `C20.good_partition_cover`; the distance witnesses are supplied by the written odd-gap construction |
 | Five perfect matchings with partitioned spokes → six-edge double cover on two odd cycles | Kernel-checked Lean theorem `C20.five_matchings_cover` in [C20.lean](C20.lean) |
 | Three perfect matchings partitioning the edges → doubled cover | Lean theorem `C20.tait_double_cover` |
 | Actual graph implementation | 2,000 deterministic physical graph checks; supplementary tests, not the source of unbounded scope |
 
 **This is a complete computer-assisted proof with a partial Lean
-formalization, not an end-to-end Lean proof of C20.** The Lean theorem
-takes the constructed five perfect matchings and their spoke partition
-as hypotheses. Neither the boundary reduction, the good-class matching
-construction, nor the finite C++ computation is silently assumed as a
-Lean axiom. See [FORMALIZATION.md](FORMALIZATION.md) for the exact interface.
+formalization, not an end-to-end Lean proof of C20.** The strongest Lean
+theorem takes five spoke classes with odd-gap distance witnesses and
+constructs all six perfect matchings. The boundary reduction and finite
+C++ computation remain outside Lean. See [FORMALIZATION.md](FORMALIZATION.md)
+for the exact interface and unformalized steps.
 
 ## Reproduce
 

@@ -249,7 +249,7 @@ No bounded-order graph census is being promoted to an unbounded theorem:
 the finite boundary reduction was proved before the exhaustive step,
 and its lifting works for arbitrary outside size and arrangement.
 
-The full cycle-permutation case remains open in this session. It would
+This result leaves the full cycle-permutation case unresolved. It would
 suffice, for example, to prove every class-2 graph in the class has an
 M-alternating circuit of length at most 20. That assertion is not proved
 here. The universal short-circuit bound and the full Berge–Fulkerson conjecture

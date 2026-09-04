@@ -1,6 +1,6 @@
 # What Lean proves
 
-The exact main statement is `C20.five_matchings_cover` in `C20.lean`:
+The core statement is `C20.five_matchings_cover` in `C20.lean`:
 for **any vertex-position type V**, any two cycles with odd closed orbits,
 and any five perfect matchings whose spoke sets partition V, adjoining
 the spoke matching gives six perfect matchings covering every edge twice.
@@ -10,6 +10,20 @@ The second theorem, `C20.tait_double_cover`, proves that three perfect
 matchings partitioning all edges produce a six-matching double cover by
 repeating each matching twice. These are the two terminal branches in the
 written proof.
+
+The stronger constructive theorem `C20.good_partition_cover` takes five
+spoke classes that partition V, together with a `GapWitness` on each cycle
+for each class. It constructs the cycle edges, proves the resulting five
+edge sets are perfect matchings, and then applies the lifting theorem.
+
+`GapWitness.distance v` is the distance to the next selected position,
+allowing zero at a selected position. Its explicit laws say: distance is
+zero exactly at selected positions; away from them it decreases by one
+along a successor step; immediately after a selected position it is even.
+The written odd-gap argument supplies those laws because consecutive
+selected positions are separated by an odd number of edges. The formal
+construction selects an outgoing cycle edge exactly when the distance is
+positive and even. `gap_incidence` checks its exact vertex incidence.
 
 ## Encoding and semantics
 
@@ -44,14 +58,15 @@ Run `lake build` with the pinned Lean 4.28.0 toolchain, then
 `lake env lean C20.lean` to print the axiom dependencies. The only import
 is `Std`. Arithmetic automation produces kernel-checked terms.
 There is no external C++ result imported into Lean, and no added axiom,
-admitted proof, or `native_decide` proof.
+admitted proof, or `native_decide` proof. The basic Lean principles
+`propext` and `Quot.sound` are reported by the axiom audit.
 
 The following steps are **not** yet Lean formalized:
 
 1. Extracting and normalizing the boundary type from Q.
 2. Identifying complement cycle parity with the auxiliary weighted graph.
 3. Proving exhaustive coverage and checking the full finite boundary lemma in Lean.
-4. Constructing the five perfect matchings from common-good classes, including arbitrary gap lengths.
+4. Extracting the `GapWitness` distance functions from the written cyclic-arc definition of common-good classes. Once those witnesses are supplied, the matching construction and coverage are Lean checked for arbitrary gap lengths.
 5. Extracting the two alternating perfect matchings from an even complement.
 
 Those steps are proved in the written argument and checked computationally
