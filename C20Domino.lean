@@ -39,7 +39,7 @@ theorem domino_incidence {m : Nat} (hm : 3 ≤ m) (c : Cycle (Fin m))
         rw [c.next_prev] at he
         have hji : j = dom.mate i := by
           have h := congrArg dom.mate (inj he)
-          simpa only [dom.involutive] using h
+          exact (dom.involutive j).symm.trans h
         simpa only [hji] using hj
       · intro h
         exact ⟨dom.mate i, h, by rw [dom.involutive, c.next_prev]⟩
@@ -53,10 +53,8 @@ theorem domino_incidence {m : Nat} (hm : 3 ≤ m) (c : Cycle (Fin m))
     have hsel : (∃ j, vertex j = vertex i) := ⟨i, rfl⟩
     simp only [hsel, not_true_eq_false, decide_false, bit]
     rcases ha with ha | ha
-    · have hb : vertex (dom.mate i) ≠ c.prev (vertex i) := by rw [ha]; exact hn
-      simp [ha, hb]
-    · have hb : vertex (dom.mate i) ≠ c.next (vertex i) := by rw [ha]; exact Ne.symm hn
-      simp [ha, hb]
+    · simp [ha, hn]
+    · simp [ha, Ne.symm hn]
   · have hout : ¬ ∃ i, vertex i = v ∧ vertex (dom.mate i) = c.next v := by
       rintro ⟨i, hi, _⟩; exact hv ⟨i, hi⟩
     have hin : ¬ ∃ i, vertex i = c.prev v ∧
@@ -82,12 +80,17 @@ def outerPair {k : Nat} (he : k % 2 = 0) (i : Fin k) : Fin k :=
   if hi : i.val % 2 = 0 then ⟨i.val + 1, by have h := i.isLt; omega⟩
   else ⟨i.val - 1, by have h := i.isLt; omega⟩
 
+theorem outerPair_val {k : Nat} (he : k % 2 = 0) (i : Fin k) :
+    (outerPair he i).val = if i.val % 2 = 0 then i.val + 1 else i.val - 1 := by
+  unfold outerPair
+  split <;> rfl
+
 theorem outerPair_involutive {k : Nat} (he : k % 2 = 0) :
     Function.Involutive (outerPair he) := by
   intro i
   apply Fin.ext
-  simp only [outerPair]
-  split_ifs <;> simp_all <;> omega
+  simp only [outerPair_val]
+  split_ifs <;> omega
 
 theorem outerPair_adjacent {V : Type} {c d : Cycle V} (q : ShortCircuit c d) :
     ∀ i, Adjacent c (q.vertex i) (q.vertex (outerPair q.even i)) := by
@@ -114,7 +117,69 @@ theorem outerPair_adjacent {V : Type} {c d : Cycle V} (q : ShortCircuit c d) :
 def outerDomino {V : Type} {c d : Cycle V} (q : ShortCircuit c d) : Domino c q.vertex :=
   ⟨outerPair q.even, outerPair_involutive q.even, outerPair_adjacent q⟩
 
+theorem cyclicNext_val {k : Nat} (i : Fin k) :
+    (cyclicNext i).val = if i.val + 1 < k then i.val + 1 else 0 := by
+  simp only [cyclicNext]
+  split_ifs with h
+  · exact Nat.mod_eq_of_lt h
+  · have hi : i.val + 1 = k := by have hlt := i.isLt; omega
+    rw [hi, Nat.mod_self]
+
+theorem cyclicNext_injective (k : Nat) : Function.Injective (@cyclicNext k) := by
+  intro i j h
+  have he := congrArg Fin.val h
+  rw [cyclicNext_val, cyclicNext_val] at he
+  apply Fin.ext
+  have hi := i.isLt
+  have hj := j.isLt
+  split_ifs at he <;> omega
+
+noncomputable def cyclicPerm (k : Nat) : Equiv.Perm (Fin k) :=
+  Equiv.ofBijective cyclicNext
+    ⟨cyclicNext_injective k, Finite.surjective_of_injective (cyclicNext_injective k)⟩
+
+theorem cyclicNext_parity {k : Nat} (he : k % 2 = 0) (i : Fin k) :
+    (cyclicNext i).val % 2 = 1 - i.val % 2 := by
+  rw [cyclicNext_val]
+  split_ifs <;> have hi := i.isLt <;> omega
+
+/-- Restarting a circuit one spoke later exchanges its outer and inner roles. -/
+noncomputable def rotateCircuit {V : Type} {c d : Cycle V} (q : ShortCircuit c d) :
+    ShortCircuit d c where
+  size := q.size
+  min_two := q.min_two
+  even := q.even
+  length_le_twenty := q.length_le_twenty
+  vertex i := q.vertex (cyclicNext i)
+  injective i j h := cyclicNext_injective q.size (q.injective _ _ h)
+  outer_step i hi := q.inner_step (cyclicNext i) (by rw [cyclicNext_parity q.even, hi])
+  inner_step i hi := q.outer_step (cyclicNext i) (by rw [cyclicNext_parity q.even, hi])
+
+noncomputable def innerDomino {V : Type} {c d : Cycle V} (q : ShortCircuit c d) :
+    Domino d q.vertex := by
+  let p := cyclicPerm q.size
+  refine ⟨fun i => p (outerPair q.even (p.symm i)), ?_, ?_⟩
+  · intro i
+    simp only [p.symm_apply_apply, outerPair_involutive q.even (p.symm i), p.apply_symm_apply]
+  · intro i
+    have h := outerPair_adjacent (rotateCircuit q) (p.symm i)
+    change Adjacent d (q.vertex (p (p.symm i)))
+      (q.vertex (p (outerPair q.even (p.symm i)))) at h
+    simpa only [p.apply_symm_apply] using h
+
+/-- The short alternating circuit itself supplies the switched matching. -/
+theorem circuit_switch_matching {m : Nat} (hm : 3 ≤ m) (c d : Cycle (Fin m))
+    (cc : ConnectedCycle c) (dc : ConnectedCycle d) (q : ShortCircuit c d) :
+    ∃ p : EdgeSet (Fin m), PerfectMatching c d p ∧
+      ∀ v, p.spoke v = decide (v ∉ circuitKernel q) := by
+  rcases paired_kernel_matching hm c d cc dc q.vertex q.injective
+    (outerDomino q) (innerDomino q) with ⟨p, hp, hs⟩
+  refine ⟨p, hp, ?_⟩
+  intro v
+  simpa only [mem_circuitKernel] using hs v
+
 end C20
 
 #print axioms C20.paired_kernel_matching
 #print axioms C20.outerDomino
+#print axioms C20.circuit_switch_matching
