@@ -43,6 +43,27 @@ jobs:
           lake build C20BoundaryMatching:shared
           lake env lean C20Assemble.lean | tee graph-axioms.log
           if grep -E 'sorryAx|ofReduceBool' graph-axioms.log; then exit 1; fi
+      - name: Wait for every finite proof artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          C20_SHARD_RUN: ${{ inputs.shard_run }}
+        run: |
+          for C20_ATTEMPT in $(seq 1 90); do
+            C20_NAMES=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${C20_SHARD_RUN}/artifacts" --jq '.artifacts[].name')
+            C20_READY=true
+            for C20_HEAD in $(seq 0 9); do
+              if ! grep -qx "matching-head-${C20_HEAD}" <<< "$C20_NAMES"; then C20_READY=false; fi
+            done
+            if "$C20_READY"; then exit 0; fi
+            C20_STATUS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${C20_SHARD_RUN}" --jq .status)
+            if [ "$C20_STATUS" = completed ]; then
+              echo 'Finite run ended without every proof artifact.'
+              exit 1
+            fi
+            sleep 10
+          done
+          echo 'Timed out waiting for the finite proofs.'
+          exit 1
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           github-token: ${{ github.token }}
@@ -57,6 +78,17 @@ jobs:
           lake env lean -o .lake/build/lib/lean/C20MatchingFinite.olean C20MatchingFinite.lean | tee finite-axioms.log
           lake env lean -o .lake/build/lib/lean/C20Theorem.olean C20Theorem.lean | tee full-axioms.log
           if grep 'sorryAx' finite-axioms.log full-axioms.log; then exit 1; fi
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          import re
+          log = Path('full-axioms.log').read_text()
+          match = re.search(r"'C20.c20' depends on axioms: \[(.*?)\]", log, re.S)
+          assert match, 'Missing final theorem axiom audit'
+          actual = {a.strip() for a in match.group(1).split(',')}
+          expected = {'propext', 'Classical.choice', 'Quot.sound', 'Lean.ofReduceBool', 'Lean.trustCompiler'}
+          assert actual == expected, f'Unexpected final axioms: {actual}'
+          print('PASS: final theorem uses exactly the documented logical and native-evaluation axioms')
+          PYTHON
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: full-proof-audit
