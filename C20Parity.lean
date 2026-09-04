@@ -23,7 +23,7 @@ theorem exists_gapFlags {k : Nat} (gap : Fin k → Bool)
 
 theorem orderLabels_self {W : Type} {k : Nat} (coords : Fin k ≃ W) :
     orderLabels coords coords.symm = List.range k := by
-  simp only [orderLabels, Equiv.symm_apply_apply, List.ofFn_val]
+  simp only [orderLabels, Equiv.symm_apply_apply, ofFn_values_range]
 
 theorem oddCycle_no_empty_matching {V : Type} (c : Cycle V) (odd : OddCycle c)
     (root : V) (edge : V → Bool)

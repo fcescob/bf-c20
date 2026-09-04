@@ -28,7 +28,7 @@ theorem boundary_up_to_ten_native (k : Nat) (hk : k ∈ [2, 4, 6, 8, 10])
     (connected : connectedDominoes k (0 :: tail) = true) :
     Conclusion ⟨k, 0 :: tail, cf, df⟩ := by
   apply allBoundaryStates_sound k tail cf df hperm hc hd connected
-  simp only [List.mem_cons, List.mem_singleton] at hk
+  simp at hk
   rcases hk with rfl | rfl | rfl | rfl | rfl
   · exact allBoundaryStates_two
   · exact allBoundaryStates_four

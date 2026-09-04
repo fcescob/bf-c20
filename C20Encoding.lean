@@ -37,10 +37,17 @@ theorem cyclicPrev_val {k : Nat} (i : Fin k) :
 def orderLabels {W : Type} {k : Nat} (coords : Fin k ≃ W) (labels : W ≃ Fin k) : List Nat :=
   List.ofFn (fun i => (labels (coords i)).val)
 
+theorem ofFn_values_range (k : Nat) :
+    List.ofFn (fun i : Fin k => i.val) = List.range k := by
+  apply List.ext_getElem
+  · simp
+  · intro i hi hj
+    simp
+
 theorem orderLabels_perm {W : Type} {k : Nat} (coords : Fin k ≃ W) (labels : W ≃ Fin k) :
     (orderLabels coords labels).Perm (List.range k) := by
   have h := Equiv.Perm.ofFn_comp_perm (coords.trans labels) (fun i : Fin k => i.val)
-  simpa only [orderLabels, Function.comp_def, Equiv.trans_apply, List.ofFn_val] using h
+  simpa only [orderLabels, Function.comp_def, Equiv.trans_apply, ofFn_values_range] using h
 
 /-- The literal finite row equation is exactly the abstract weighted
 boundary incidence equation, under verified cyclic coordinates. -/

@@ -31,7 +31,7 @@ theorem wrongParity_matching (k : Nat) (hk : k ∈ [2, 4, 6, 8, 10]) (flags : Na
     (bound : flags < 2 ^ (k / 2)) (wrong : flags ∉ oddFlags k) :
     RowMatching (List.range k) flags 0 (emptyCycleEdges k flags) := by
   have hcheck : wrongParityCheck k = true := by
-    simp only [List.mem_cons, List.mem_singleton] at hk
+    simp at hk
     rcases hk with rfl | rfl | rfl | rfl | rfl
     · exact wrongParity_two
     · exact wrongParity_four

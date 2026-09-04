@@ -41,7 +41,7 @@ theorem matching_up_to_ten_native (k : Nat) (hk : k ∈ [2, 4, 6, 8, 10])
     (hperm : tail.Perm ((List.range (k - 1)).map (· + 1)))
     (hc : cf ∈ oddFlags k) (hd : df ∈ oddFlags k) :
     MatchingConclusion ⟨k, 0 :: tail, cf, df⟩ := by
-  simp only [List.mem_cons, List.mem_singleton] at hk
+  simp at hk
   rcases hk with rfl | rfl | rfl | rfl | rfl
   · exact allMatchingStates_sound 2 tail cf df hperm hc hd matching_two
   · exact allMatchingStates_sound 4 tail cf df hperm hc hd matching_four
