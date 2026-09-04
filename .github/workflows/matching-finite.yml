@@ -27,8 +27,7 @@ jobs:
           set -o pipefail
           lake build C20BoundaryMatching:shared
           mkdir -p .lake/build/lib/lean/C20MatchingFinite
-          /usr/bin/time -v lake env lean -o ".lake/build/lib/lean/C20MatchingFinite/Head${C20_HEAD}.olean" \
-            "C20MatchingFinite/Head${C20_HEAD}.lean" | tee shard-axioms.log
+          /usr/bin/time -v lake build "+C20MatchingFinite.Head${C20_HEAD}" | tee shard-axioms.log
           if grep 'sorryAx' shard-axioms.log; then exit 1; fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
