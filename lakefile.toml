@@ -1,6 +1,6 @@
 name = "C20Cover"
 version = "1.0.0"
-defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion", "C20Statement", "C20Cycles", "C20Kernel", "C20Even", "C20Compression", "C20Domino", "C20MatchingArcs", "C20BoundaryMatching", "C20Three", "C20Coordinates", "C20Normalize", "C20Encoding", "C20Reversal", "C20ParityFinite", "C20Parity"]
+defaultTargets = ["C20", "C20Gaps", "C20Boundary", "C20Expansion", "C20Statement", "C20Cycles", "C20Kernel", "C20Even", "C20Compression", "C20Domino", "C20MatchingArcs", "C20BoundaryMatching", "C20Three", "C20Coordinates", "C20Normalize", "C20Encoding", "C20Reversal", "C20ParityFinite", "C20Parity", "C20Assemble"]
 
 [[lean_lib]]
 name = "C20"
@@ -61,6 +61,9 @@ name = "C20ParityFinite"
 
 [[lean_lib]]
 name = "C20Parity"
+
+[[lean_lib]]
+name = "C20Assemble"
 
 [[lean_exe]]
 name = "boundary-search"
