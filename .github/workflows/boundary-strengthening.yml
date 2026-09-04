@@ -1,0 +1,23 @@
+name: Test whether domino connectivity can be omitted
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Probe the stronger finite statement in a temporary source
+        run: |
+          mkdir -p out
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('exhaustive_local.cpp').read_text()
+          source = source.replace('if (!connected) continue;', '(void)connected;')
+          source = source.replace('assert(orders == a * a);', '(void)a;')
+          Path('out/stronger.cpp').write_text(source)
+          PY
+          g++ -std=c++17 -O2 -UNDEBUG out/stronger.cpp -o out/stronger
+          out/stronger

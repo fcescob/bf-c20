@@ -31,7 +31,7 @@ theorem matching_firstHit_parity {V : Type} (c : Cycle V) (s edge : V → Bool)
     have hs : s v = true := hn.1
     have h := incidence v
     rw [hs] at h
-    cases he : edge (c.prev v) <;> simp_all [bit, parityBit]
+    cases he : edge (c.prev v) <;> simp_all [bit, parityBit] <;> omega
   | succ n ih =>
     intro v hn
     have hs : s v = false := hn.2 0 (by omega)
